@@ -862,20 +862,15 @@ section,
 
   width: 800px;
   height: 800px;
-
-  top: -150px;
-  left: 50%;
+  top: 0px;
+  left: 43%;
   transform: translateX(-50%);
 
   border-radius: 50%;
 
   background:
-    radial-gradient(
-      circle,
-      rgba(139, 92, 246, 0.35) 0%,
-      rgba(139, 92, 246, 0.15) 35%,
-      transparent 70%
-    );
+ radial-gradient( circle, rgba(206, 118, 255, 0.08) 0%, rgba(139, 92, 246, 0.15) 35%, transparent 40% )
+;
 
   filter: blur(80px);
 
@@ -897,6 +892,10 @@ section,
 }
 
 .hero .hero-wrapper {
+  --hero-laptop-left: clamp(0px, 18vw, 120px);
+  --hero-laptop-top: -196px;
+  --hero-cards-top: -146px;
+  --hero-laptop-width: clamp(778px, 56.25vw, 1080px);
   width: 100%;
   max-width: 900px;
   margin: 0;
@@ -911,9 +910,9 @@ section,
 
 .hero .hero-mystery-laptop {
   position: absolute;
-  top: -176px;
-  left: clamp(0px, 18vw, 120px);
-  width: clamp(60px, 62vw, 1080px);
+  top: var(--hero-laptop-top);
+  left: var(--hero-laptop-left);
+  width: var(--hero-laptop-width);
   pointer-events: none;
   opacity: 0.32;
   filter: drop-shadow(0 0 54px rgba(139, 92, 246, 0.18));
@@ -952,10 +951,10 @@ section,
 
 .hero .hero-test-cards {
   position: absolute;
-  top: -92px;
-  left: 430px;
-  width: 850px;
-  height: 720px;
+  top: var(--hero-cards-top);
+  left: var(--hero-laptop-left);
+  width: var(--hero-laptop-width);
+  aspect-ratio: 3 / 2;
   z-index: 2;
   pointer-events: none;
 }
@@ -1243,17 +1242,17 @@ top: 2px;
 }
 
 .hero .test-card.cpu-card {
-    top: 350px;
-    right: 181px;
+    top: 63.5%;
+    left: 74.17%;
     z-index: 4;
     --line-w: 88px;
     --line-left: -68px;
-    --line-top: 47%;
+    --line-top: 27%;
 }
 
 .hero .test-card.display-card {
-    top: 174px;
-    right: 46px;
+    top: 35.5%;
+    left: 84.81%;
     width: 198px;
     height: 160px;
     --line-w: 62px;
@@ -1277,8 +1276,8 @@ top: 2px;
 }
 
 .hero .test-card.battery-card {
-    top: 470px;
-    left: 264px;
+    top: 76.94%;
+    left: 53.15%;
     --line-h: 26px;
     --line-left: 68%;
 }
@@ -1331,8 +1330,8 @@ top: 2px;
 }
 
 .hero .test-card.fps-card {
-    top: 3px;
-    right: -34px;
+    top: 8.5%;
+    left: 78.98%;
     --line-w: 88px;
     --line-left: -88px;
     --line-top: 47%;
@@ -1697,6 +1696,7 @@ background: linear-gradient(
     left: 50%;
     filter: blur(68px);
     opacity: 0.82;
+  radial-gradient( circle, rgba(161, 128, 238, 0.35) 0%, rgba(152, 110, 249, 0.15) 35%, transparent 33% )
   }
 
   .hero::after {
