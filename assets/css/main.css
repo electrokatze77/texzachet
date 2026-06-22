@@ -872,7 +872,7 @@ section,
  radial-gradient( circle, rgba(206, 118, 255, 0.08) 0%, rgba(139, 92, 246, 0.15) 35%, transparent 40% )
 ;
 
-  filter: blur(80px);
+  filter: blur(100px);
 
   z-index: 0;
 }
