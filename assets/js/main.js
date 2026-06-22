@@ -164,11 +164,12 @@
     {
       id: 'battery',
       type: 'metric',
-      icon: 'bi-battery-half',
+      icon: 'bi-cpu',
       label: '<span class="problem-label">Проблема</span>',
-      title: '1.5 ч',
-      subtitle: 'Плохая батарея',
-      progress: 15
+      title: '24%',
+      subtitle: 'Троттлинг',
+      progress: 76,
+      progressMode: 'drop'
     },
     {
       id: 'batteryAlt',
@@ -233,8 +234,10 @@
     }
   ];
 
-  function progressMarkup(progress) {
-    return `<div class="test-progress" style="--progress: ${progress}%"><span></span></div>`;
+  function progressMarkup(progress, mode = 'fill') {
+    const progressClass = mode === 'drop' ? ' is-dropping' : '';
+    const startScale = mode === 'drop' ? ` --progress-start-scale: ${100 / progress};` : '';
+    return `<div class="test-progress${progressClass}" style="--progress: ${progress}%;${startScale}"><span></span></div>`;
   }
 
   function sparklineMarkup(points) {
@@ -270,7 +273,7 @@
 
     const subtitle = card.subtitle ? `<div class="card-subtitle">${card.subtitle}</div>` : '';
     const value = card.value ? `<div class="card-value">${card.value}</div>` : '';
-    const progress = card.progress ? progressMarkup(card.progress) : '';
+    const progress = card.progress ? progressMarkup(card.progress, card.progressMode) : '';
     const sparkline = card.points ? sparklineMarkup(card.points) : '';
 
     return `

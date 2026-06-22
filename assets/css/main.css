@@ -1144,9 +1144,23 @@ section,
   animation: hero-progress-fill 0.85s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
+.hero .test-card-content.is-progress-animating .test-progress.is-dropping span {
+  animation-name: hero-progress-drop;
+}
+
 @keyframes hero-progress-fill {
   0% {
     transform: scaleX(0);
+  }
+
+  100% {
+    transform: scaleX(1);
+  }
+}
+
+@keyframes hero-progress-drop {
+  0% {
+    transform: scaleX(var(--progress-start-scale, 1));
   }
 
   100% {
