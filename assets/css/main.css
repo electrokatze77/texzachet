@@ -893,8 +893,9 @@ section,
 
 .hero .hero-wrapper {
   --hero-laptop-left: clamp(0px, 18vw, 120px);
-  --hero-laptop-top: -196px;
-  --hero-cards-top: -146px;
+  --hero-laptop-top: clamp(-196px, calc(-38px - 8.25vw), -140px);
+  --hero-cards-offset: clamp(36px, 2.65vw, 50px);
+  --hero-cards-top: calc(var(--hero-laptop-top) + var(--hero-cards-offset));
   --hero-laptop-width: clamp(778px, 56.25vw, 1080px);
   width: 100%;
   max-width: 900px;
@@ -1522,6 +1523,58 @@ background: linear-gradient(
 .hero .hero-scroll-hint:hover {
   color: var(--accent-color);
   transform: translateY(2px);
+}
+
+@media (min-width: 992px) and (max-width: 1399px) {
+  .hero .hero-wrapper {
+    --hero-laptop-left: clamp(72px, 9vw, 120px);
+    --hero-laptop-width: clamp(760px, 62vw, 868px);
+  }
+
+  .hero .hero-test-cards {
+    transform: scale(0.8);
+    transform-origin: 58% 42%;
+  }
+
+  .hero .test-card.fps-card {
+    top: 1%;
+    left: 76%;
+  }
+
+  .hero .test-card.display-card {
+    top: 35%;
+    left: 84%;
+  }
+
+  .hero .test-card.cpu-card {
+    top: 72%;
+    left: 76%;
+  }
+
+  .hero .test-card.battery-card {
+    top: 90%;
+    left: 48%;
+  }
+}
+
+@media (min-width: 992px) and (max-height: 820px) {
+  .hero {
+    padding-top: 76px;
+  }
+
+  .hero .hero-wrapper {
+    --hero-laptop-top: clamp(-142px, calc(-18px - 9vw), -116px);
+    --hero-cards-offset: clamp(32px, 2.35vw, 44px);
+  }
+
+  .hero .hero-title {
+    margin-top: 116px;
+    margin-bottom: 30px;
+  }
+
+  .hero .hero-actions {
+    margin-bottom: 38px;
+  }
 }
 
 @media (min-width: 992px) {
