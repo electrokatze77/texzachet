@@ -1525,7 +1525,7 @@ background: linear-gradient(
   transform: translateY(2px);
 }
 
-@media (min-width: 992px) and (max-width: 1399px) {
+@media (min-width: 992px) and (max-width: 1599px) {
   .hero .hero-wrapper {
     --hero-laptop-left: clamp(72px, 9vw, 120px);
     --hero-laptop-width: clamp(760px, 62vw, 868px);
@@ -1552,8 +1552,10 @@ background: linear-gradient(
   }
 
   .hero .test-card.battery-card {
-    top: 90%;
+    top: 89%;
     left: 48%;
+        --line-h: 26px;
+    --line-left: 68%;
   }
 }
 
