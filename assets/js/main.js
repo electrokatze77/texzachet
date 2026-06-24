@@ -94,13 +94,22 @@
    */
   function aosInit() {
     AOS.init({
-      duration: 600,
+      duration: 400,
       easing: 'ease-in-out',
       once: true,
       mirror: false
     });
   }
-  window.addEventListener('load', aosInit);
+  function scheduleAosInit() {
+    window.requestAnimationFrame(() => {
+      window.setTimeout(aosInit, 30);
+    });
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', scheduleAosInit);
+  } else {
+    scheduleAosInit();
+  }
 
   /**
    * Initiate glightbox
@@ -177,7 +186,7 @@
       icon: 'bi-exclamation-triangle-fill',
       label: '<span class="problem-label">Проблема</span>',
       title: '135W',
-      subtitle: 'Ограниченное питание',
+      subtitle: 'Недостаточное питание',
       progress: 35
     },
     {

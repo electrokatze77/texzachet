@@ -951,6 +951,8 @@ section,
 }
 
 .hero .hero-test-cards {
+  --card-infographic-color: #948bfa;
+  --card-infographic-glow: rgba(148, 139, 250, 0.5);
   position: absolute;
   top: var(--hero-cards-top);
   left: var(--hero-laptop-left);
@@ -966,13 +968,13 @@ section,
   pointer-events: auto;
   min-width: 178px;
   padding: 18px 20px;
-  border: 1px solid rgba(167, 139, 250, 0.34);
+  border: 1px solid rgba(148, 139, 250, 0.34);
   border-radius: 12px;
   background:
     linear-gradient(145deg, rgba(13, 8, 27, 0.76), rgba(5, 2, 13, 0.42)),
-    radial-gradient(circle at 18% 0%, rgba(139, 92, 246, 0.14), transparent 44%);
+    radial-gradient(circle at 18% 0%, rgba(148, 139, 250, 0.14), transparent 44%);
   box-shadow:
-    inset 0 0 26px rgba(139, 92, 246, 0.06),
+    inset 0 0 26px rgba(148, 139, 250, 0.06),
     0 18px 50px rgba(0, 0, 0, 0.28);
   backdrop-filter: blur(8px);
   font-family: 'Inter';
@@ -984,11 +986,11 @@ section,
 .hero .test-card:hover,
 .hero .test-card.is-hovered {
   scale: 1.035;
-  border-color: rgba(167, 139, 250, 0.72);
+  border-color: rgba(148, 139, 250, 0.72);
   box-shadow:
-    inset 0 0 28px rgba(139, 92, 246, 0.10),
+    inset 0 0 28px rgba(148, 139, 250, 0.10),
     0 22px 58px rgba(0, 0, 0, 0.34),
-    0 0 34px rgba(139, 92, 246, 0.16);
+    0 0 34px rgba(148, 139, 250, 0.16);
 }
 
 .hero .test-card-content {
@@ -1009,8 +1011,8 @@ section,
   height: 1px;
   left: var(--line-left, -96px);
   top: var(--line-top, 50%);
-  background: linear-gradient(90deg, transparent, rgba(124, 58, 237, 0.72));
-  border-top: 1px dashed rgba(124, 58, 237, 0.48);
+  background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--card-infographic-color), transparent 28%));
+  border-top: 1px dashed color-mix(in srgb, var(--card-infographic-color), transparent 52%);
 }
 
 .hero .test-card::after {
@@ -1022,8 +1024,8 @@ section,
   left: var(--dot-left, -7px);
   top: calc(var(--line-top, 50%) - 4px);
   border-radius: 50%;
-  background: #7c3aed;
-  box-shadow: 0 0 16px rgba(124, 58, 237, 0.9);
+  background: var(--card-infographic-color);
+  box-shadow: 0 0 16px color-mix(in srgb, var(--card-infographic-color), transparent 10%);
 }
 
 .hero .test-card.is-line-animating::before {
@@ -1037,20 +1039,20 @@ section,
 @keyframes hero-card-line-pulse {
   0% {
     opacity: 0.55;
-    filter: drop-shadow(0 0 0 rgba(168, 85, 247, 0));
+    filter: drop-shadow(0 0 0 transparent);
     clip-path: inset(0 100% 0 0);
   }
 
   50%,
   74% {
     opacity: 1;
-    filter: drop-shadow(0 0 8px rgba(124, 58, 237, 0.58));
+    filter: drop-shadow(0 0 8px var(--card-infographic-glow));
     clip-path: inset(0 0 0 0);
   }
 
   100% {
     opacity: 1;
-    filter: drop-shadow(0 0 0 rgba(168, 85, 247, 0));
+    filter: drop-shadow(0 0 0 transparent);
     clip-path: inset(0 0 0 0);
   }
 }
@@ -1059,24 +1061,24 @@ section,
   0%,
   52% {
     transform: scale(1);
-    background: #7c3aed;
+    background: var(--card-infographic-color);
   }
 
   64% {
     transform: scale(1.38);
-    background: #7c3aed;
-    box-shadow: 0 0 22px rgba(124, 58, 237, 0.9);
+    background: var(--card-infographic-color);
+    box-shadow: 0 0 22px color-mix(in srgb, var(--card-infographic-color), transparent 10%);
   }
 
   76% {
     transform: scale(1);
-    background: #7c3aed;
-    box-shadow: 0 0 16px rgba(124, 58, 237, 0.9);
+    background: var(--card-infographic-color);
+    box-shadow: 0 0 16px color-mix(in srgb, var(--card-infographic-color), transparent 10%);
   }
 
   100% {
     transform: scale(1);
-    background: #7c3aed;
+    background: var(--card-infographic-color);
   }
 }
 
@@ -1085,7 +1087,7 @@ section,
   align-items: center;
   gap: 7px;
   margin-bottom: 10px;
-  color: #a78bfa;
+  color: var(--card-infographic-color);
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.02em;
@@ -1093,7 +1095,21 @@ section,
 }
 
 .hero .test-card .card-label i {
+  display: inline-grid;
+  width: 18px;
+  height: 18px;
+  place-items: center;
+}
+
+.hero .test-card .card-label i::before {
   font-size: 13px;
+  line-height: 1;
+  transition: font-size 0.28s ease;
+}
+
+.hero .test-card:hover .card-label i::before,
+.hero .test-card.is-hovered .card-label i::before {
+  font-size: 17px;
 }
 
 .hero .test-card .problem-label {
@@ -1110,7 +1126,7 @@ section,
 
 .hero .test-card .card-value {
   margin-top: 7px;
-  color: #a78bfa;
+  color: var(--card-infographic-color);
   font-size: 28px;
   font-weight: 700;
   line-height: 1.05;
@@ -1128,7 +1144,7 @@ section,
   margin-top: 16px;
   border-radius: 999px;
   overflow: hidden;
-  background: rgba(72, 28, 137, 0.22);
+  background: color-mix(in srgb, var(--card-infographic-color), transparent 82%);
 }
 
 .hero .test-progress span {
@@ -1136,8 +1152,8 @@ section,
   width: var(--progress, 50%);
   height: 100%;
   border-radius: inherit;
-  background: linear-gradient(90deg, #6d28d9, #a855f7);
-  box-shadow: 0 0 16px rgba(168, 85, 247, 0.45);
+  background: var(--card-infographic-color);
+  box-shadow: 0 0 16px var(--card-infographic-glow);
   transform-origin: left center;
 }
 
@@ -1178,13 +1194,13 @@ section,
 
 .hero .test-sparkline path {
   fill: none;
-  stroke: #8b5cf6;
+  stroke: var(--card-infographic-color);
   stroke-width: 2;
   stroke-linecap: round;
   stroke-linejoin: round;
   stroke-dasharray: 100;
   stroke-dashoffset: 0;
-  filter: drop-shadow(0 0 6px rgba(139, 92, 246, 0.5));
+  filter: drop-shadow(0 0 6px var(--card-infographic-glow));
 }
 
 .hero .test-card-content.is-progress-animating .test-sparkline path {
@@ -1211,7 +1227,7 @@ section,
 
 .hero .fps-card .fps-meta {
   margin: 14px 0 12px;
-  color: #a78bfa;
+  color: var(--card-infographic-color);
   font-size: 14px;
   font-weight: 700;
 }
@@ -1234,7 +1250,7 @@ section,
 }
 
 .hero .fps-row .game-name i {
-  color: #8b5cf6;
+  color: var(--card-infographic-color);
   font-size: 11px;
 }
 
@@ -1309,9 +1325,9 @@ top: 2px;
   height: var(--line-h);
   left: var(--line-left);
   top: calc(var(--line-h) * -1);
-  background: linear-gradient(180deg, transparent, rgba(124, 58, 237, 0.72));
+  background: linear-gradient(180deg, transparent, color-mix(in srgb, var(--card-infographic-color), transparent 28%));
   border-top: 0;
-  border-left: 1px dashed rgba(124, 58, 237, 0.48);
+  border-left: 1px dashed color-mix(in srgb, var(--card-infographic-color), transparent 52%);
 }
 
 .hero .test-card.battery-card::after {
@@ -1326,20 +1342,20 @@ top: 2px;
 @keyframes hero-card-line-pulse-vertical {
   0% {
     opacity: 0.55;
-    filter: drop-shadow(0 0 0 rgba(168, 85, 247, 0));
+    filter: drop-shadow(0 0 0 transparent);
     clip-path: inset(100% 0 0 0);
   }
 
   50%,
   74% {
     opacity: 1;
-    filter: drop-shadow(0 0 8px rgba(124, 58, 237, 0.58));
+    filter: drop-shadow(0 0 8px var(--card-infographic-glow));
     clip-path: inset(0 0 0 0);
   }
 
   100% {
     opacity: 1;
-    filter: drop-shadow(0 0 0 rgba(168, 85, 247, 0));
+    filter: drop-shadow(0 0 0 transparent);
     clip-path: inset(0 0 0 0);
   }
 }
@@ -1379,7 +1395,7 @@ top: 2px;
 }
 
 .hero .hero-title .typed {
-  color: #a78bfa;
+  color: #b08bfa;
   text-shadow: 0 0 12px rgba(167, 139, 250, 0.25);
   position: relative;
   font-size: 42px;
@@ -1392,7 +1408,7 @@ top: 2px;
   left: 0;
   width: 100%;
   height: 4px;
-  background: #8b5cf6;
+  background: #8d5cf6;
   border-radius: 2px;
 }
 
@@ -1402,7 +1418,7 @@ top: 2px;
   color: color-mix(in srgb, var(--default-color), transparent 20%);
   line-height: 1.6;
   margin-bottom: 34px;
-  max-width: 540px;
+  max-width: 440px;
   margin-left: 0;
   margin-right: auto;
 }
@@ -2271,6 +2287,15 @@ font-size: 39px;
   object-fit: contain;
 }
 
+.recommendations-caption {
+  max-width: 940px;
+  margin: 24px auto 0;
+  color: color-mix(in srgb, var(--default-color), transparent 24%);
+  font-size: 17px;
+  line-height: 1.6;
+  text-align: center;
+}
+
 .features .intro-content h2 {
   font-size: 36px;
   font-weight: 700;
@@ -2408,6 +2433,25 @@ font-size: 39px;
   border-radius: 16px;
   transition: all 0.3s ease;
   box-shadow: 0 8px 25px color-mix(in srgb, var(--accent-color), transparent 70%);
+}
+
+.features .hidden-problems-card .feature-content .feature-icon i {
+  color: #ff9aaa;
+  background: linear-gradient(135deg, rgba(255, 126, 148, 0.24), rgba(126, 38, 58, 0.42));
+  border: 1px solid rgba(255, 154, 170, 0.58);
+  box-shadow:
+    0 8px 28px rgba(255, 105, 135, 0.28),
+    0 0 22px rgba(255, 154, 170, 0.18),
+    inset 0 0 18px rgba(255, 190, 200, 0.08);
+  text-shadow: 0 0 12px rgba(255, 154, 170, 0.72);
+}
+
+.features .hidden-problems-card:hover .feature-content .feature-icon i {
+  color: #ffc0ca;
+  box-shadow:
+    0 12px 36px rgba(255, 105, 135, 0.42),
+    0 0 30px rgba(255, 154, 170, 0.30),
+    inset 0 0 20px rgba(255, 190, 200, 0.12);
 }
 
 .features .feature-item .feature-content h4 {
@@ -2582,6 +2626,13 @@ font-size: 39px;
 
   .recommendations-window .window-bar {
     height: 36px;
+  }
+
+  .recommendations-caption {
+    margin-top: 20px;
+    padding: 0 8px;
+    font-size: 15px;
+    line-height: 1.55;
   }
 
   .features .intro-content .feature-stats {
