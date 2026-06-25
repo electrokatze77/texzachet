@@ -745,7 +745,7 @@ h6 {
   color: var(--accent-color);
 }
 
-.footer .footer-email-link {
+.footer .footer-icon-link {
   width: 34px;
   height: 34px;
   display: inline-flex;
@@ -756,7 +756,7 @@ h6 {
   font-size: 16px;
 }
 
-.footer .footer-email-link:hover {
+.footer .footer-icon-link:hover {
   border-color: var(--accent-color);
   background: color-mix(in srgb, var(--accent-color), transparent 88%);
 }
