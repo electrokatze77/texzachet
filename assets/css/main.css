@@ -745,6 +745,22 @@ h6 {
   color: var(--accent-color);
 }
 
+.footer .footer-email-link {
+  width: 34px;
+  height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid color-mix(in srgb, var(--default-color), transparent 78%);
+  border-radius: 50%;
+  font-size: 16px;
+}
+
+.footer .footer-email-link:hover {
+  border-color: var(--accent-color);
+  background: color-mix(in srgb, var(--accent-color), transparent 88%);
+}
+
 .footer .footer-support {
   justify-content: flex-end;
   color: color-mix(in srgb, var(--default-color), transparent 45%);
