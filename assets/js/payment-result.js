@@ -67,7 +67,7 @@
     attempts += 1;
 
     try {
-      const endpoint = new URL("api/payment-status.php", window.location.href);
+      const endpoint = new URL("/api/payment-status", window.location.origin);
       endpoint.searchParams.set("order", orderId);
       endpoint.searchParams.set("token", token);
 

@@ -1,7 +1,7 @@
-# Local payment credentials and runtime data.
-/config/platega.local.php
-/storage/orders/*
-/storage/rate-limits/*
-!/storage/orders/.gitkeep
-!/storage/rate-limits/.gitkeep
+# Cloudflare local development secrets and state.
+.dev.vars
+.dev.vars.*
+.env
+.env.*
+.wrangler/
 

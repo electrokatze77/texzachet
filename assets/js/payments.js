@@ -110,7 +110,7 @@
     setLoading(true);
 
     try {
-      const response = await fetch("api/create-payment.php", {
+      const response = await fetch("/api/create-payment", {
         method: "POST",
         credentials: "same-origin",
         cache: "no-store",
