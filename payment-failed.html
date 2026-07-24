@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Статус оплати — ТехЗачёт</title>
+  <link href="assets/img/favicon.png" rel="icon">
+  <link href="assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
+  <link href="assets/css/main.css" rel="stylesheet">
+  <link href="assets/css/payment.css" rel="stylesheet">
+</head>
+<body class="payment-result-page">
+  <main class="payment-result-main">
+    <section class="payment-result-card" data-payment-result data-state="pending">
+      <div class="payment-result-icon" aria-hidden="true">
+        <i class="bi bi-arrow-repeat payment-result-spinner" data-result-icon></i>
+      </div>
+      <h1 data-result-title>Проверяем оплату</h1>
+      <p data-result-message>Уточняем окончательный статус платежа.</p>
+      <div class="payment-result-summary" data-result-summary hidden></div>
+      <div class="payment-result-actions">
+        <a class="payment-result-action" href="/#pricing">Попробовать ещё раз</a>
+        <a class="payment-result-action is-secondary" href="https://t.me/texwizard" target="_blank" rel="noopener">Поддержка</a>
+      </div>
+    </section>
+  </main>
+  <script src="assets/js/payment-result.js"></script>
+</body>
+</html>

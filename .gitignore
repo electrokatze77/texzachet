@@ -1,0 +1,7 @@
+# Local payment credentials and runtime data.
+/config/platega.local.php
+/storage/orders/*
+/storage/rate-limits/*
+!/storage/orders/.gitkeep
+!/storage/rate-limits/.gitkeep
+

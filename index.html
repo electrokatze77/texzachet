@@ -36,6 +36,7 @@
 
   <!-- Main CSS File -->
   <link href="assets/css/main.css" rel="stylesheet">
+  <link href="assets/css/payment.css" rel="stylesheet">
 
   <!-- =======================================================
   * Template Name: Instant
@@ -275,7 +276,7 @@
                 </ul>
               </div>
               <div class="plan-cta">
-                <a href="#" class="btn-plan">Выбрать формат</a>
+                <a href="#" class="btn-plan" data-checkout-plan="lite">Выбрать формат</a>
               </div>
             </div>
           </div><!-- End Basic Plan -->
@@ -307,7 +308,7 @@
                 </ul>
               </div>
               <div class="plan-cta">
-                <a href="#" class="btn-plan">Выбрать формат</a>
+                <a href="#" class="btn-plan" data-checkout-plan="pro">Выбрать формат</a>
               </div>
             </div>
           </div><!-- End Professional Plan -->
@@ -340,15 +341,62 @@
                 </ul>
               </div>
               <div class="plan-cta">
-                <a href="#" class="btn-plan">Выбрать формат</a>
+                <a href="#" class="btn-plan" data-checkout-plan="expert">Выбрать формат</a>
               </div>
             </div>
           </div><!-- End Enterprise Plan -->
         </div>
 
+        <div class="payment-notice" data-payment-notice role="alert" aria-live="assertive" hidden></div>
+
       </div>
 
     </section><!-- /Pricing Section -->
+
+    <div class="modal fade checkout-modal" id="checkoutModal" tabindex="-1" aria-labelledby="checkoutModalTitle" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <div>
+              <div class="checkout-modal-kicker">Оформление заказа</div>
+              <h2 class="modal-title" id="checkoutModalTitle">Тариф <span data-checkout-plan-name></span></h2>
+              <div class="checkout-modal-price" data-checkout-plan-price></div>
+            </div>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+          </div>
+          <form data-checkout-form>
+            <div class="modal-body">
+              <label class="form-label" for="checkoutContact">Telegram или email</label>
+              <input
+                class="form-control"
+                id="checkoutContact"
+                name="contact"
+                type="text"
+                maxlength="160"
+                autocomplete="email"
+                placeholder="@username или name@example.com"
+                required
+              >
+              <p class="checkout-contact-hint">Нужен только для связи по оплаченному заказу.</p>
+
+              <div class="form-check checkout-consent">
+                <input class="form-check-input" id="checkoutTerms" name="acceptedTerms" type="checkbox" required>
+                <label class="form-check-label" for="checkoutTerms">
+                  Я принимаю <a href="terms.html" target="_blank" rel="noopener">пользовательское соглашение</a>
+                  и <a href="privacy.html" target="_blank" rel="noopener">политику конфиденциальности</a>
+                </label>
+              </div>
+
+              <div class="checkout-error" data-checkout-error role="alert" aria-live="assertive" hidden></div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn checkout-cancel" data-bs-dismiss="modal">Отмена</button>
+              <button type="submit" class="btn checkout-submit" data-checkout-submit>Перейти к оплате</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
 
     <!-- About Section -->
     <section id="about" class="about section temporarily-hidden">
@@ -1600,6 +1648,7 @@
 
   <!-- Main JS File -->
   <script src="assets/js/main.js"></script>
+  <script src="assets/js/payments.js"></script>
 
 </body>
 
