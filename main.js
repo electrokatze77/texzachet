@@ -201,7 +201,7 @@
         { name: 'GTA 6', value: '55 FPS', progress: 33 }
       ]
     },
-    {
+    { 
       id: 'noise',
       type: 'sparkline',
       icon: 'bi-soundwave',
