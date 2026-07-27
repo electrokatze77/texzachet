@@ -31,7 +31,7 @@
 
   const modal = window.bootstrap.Modal.getOrCreateInstance(modalElement);
   const plans = {
-    lite: { name: "LITE", price: "2000 RUB" },
+    lite: { name: "LITE", price: "1 USD" },
     pro: { name: "PRO", price: "3000 RUB" },
     expert: { name: "EXPERT", price: "3900 RUB" }
   };

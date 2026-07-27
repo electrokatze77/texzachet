@@ -6,9 +6,9 @@ const ALLOWED_STATUSES = new Set([
   "CHARGEBACKED"
 ]);
 const PLANS = Object.freeze({
-  lite: Object.freeze({ name: "LITE", amount: 2000 }),
-  pro: Object.freeze({ name: "PRO", amount: 3000 }),
-  expert: Object.freeze({ name: "EXPERT", amount: 3900 })
+  lite: Object.freeze({ name: "LITE", amount: 1, currency: "USD" }),
+  pro: Object.freeze({ name: "PRO", amount: 3000, currency: "RUB" }),
+  expert: Object.freeze({ name: "EXPERT", amount: 3900, currency: "RUB" })
 });
 const API_HEADERS = Object.freeze({
   "Cache-Control": "no-store, private",
@@ -275,7 +275,7 @@ async function handleCreatePayment(request, env) {
     `INSERT INTO payment_orders (
        order_id, public_token_hash, plan_key, plan_name, contact,
        amount, currency, status, created_at, updated_at, terms_accepted_at
-     ) VALUES (?, ?, ?, ?, ?, ?, 'RUB', 'INITIALIZING', ?, ?, ?)`
+     ) VALUES (?, ?, ?, ?, ?, ?, ?, 'INITIALIZING', ?, ?, ?)`
   ).bind(
     orderId,
     publicTokenHash,
@@ -283,6 +283,7 @@ async function handleCreatePayment(request, env) {
     plan.name,
     contact,
     plan.amount,
+    plan.currency,
     now,
     now,
     now
@@ -301,7 +302,7 @@ async function handleCreatePayment(request, env) {
     providerResponse = await plategaRequest(env, "POST", "v2/transaction/process", {
       paymentDetails: {
         amount: plan.amount,
-        currency: "RUB"
+        currency: plan.currency
       },
       description: `Персональный подбор ноутбука — тариф ${plan.name}`,
       return: successUrl,
@@ -593,4 +594,3 @@ export default {
     }
   }
 };
-
