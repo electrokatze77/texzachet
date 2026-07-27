@@ -196,8 +196,8 @@
       label: 'Средний FPS <span class="fps-gpu-text">(5070 115W FHD)</span>',
       rows: [
         { name: 'Cyberpunk 2077', value: '118 FPS', progress: 72 },
-        { name: 'Alan Wake 2', value: '74 FPS', progress: 45 },
-        { name: 'STALKER 2', value: '96 FPS', progress: 58 }
+        { name: 'Black Myth: Wukong', value: '74 FPS', progress: 45 },
+        { name: 'Atomic Heart', value: '96 FPS', progress: 58 }
       ]
     },
     {
@@ -206,9 +206,9 @@
       icon: 'bi-speedometer2',
       label: 'Средний FPS <span class="fps-gpu-text">(5070 115W FHD)</span>',
       rows: [
-        { name: 'CS2', value: '291 FPS', progress: 100 },
+        { name: 'VALORANT', value: '291 FPS', progress: 100 },
         { name: 'Forza Horizon 6', value: '165 FPS', progress: 100 },
-        { name: '007 First Light', value: '102 FPS', progress: 62 }
+        { name: 'GTA 6', value: '55 FPS', progress: 33 }
       ]
     },
     {
