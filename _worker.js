@@ -6,7 +6,7 @@ const ALLOWED_STATUSES = new Set([
   "CHARGEBACKED"
 ]);
 const PLANS = Object.freeze({
-  lite: Object.freeze({ name: "LITE", amount: 50, currency: "RUB" }),
+  lite: Object.freeze({ name: "LITE", amount: 1, currency: "RUB" }),
   pro: Object.freeze({ name: "PRO", amount: 3000, currency: "RUB" }),
   expert: Object.freeze({ name: "EXPERT", amount: 3900, currency: "RUB" })
 });
@@ -365,6 +365,94 @@ function publicOrder(order) {
   };
 }
 
+async function sendTelegramPaymentNotification(order, env) {
+  const botToken = String(env.TELEGRAM_BOT_TOKEN || "").trim();
+  const chatId = String(env.TELEGRAM_CHAT_ID || "").trim();
+  if (!/^\d+:[A-Za-z0-9_-]+$/.test(botToken) || !/^-?\d+$/.test(chatId)) {
+    throw new Error("Telegram notification secrets have an invalid format");
+  }
+
+  const response = await fetch(
+    `https://api.telegram.org/bot${botToken}/sendMessage`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        chat_id: chatId,
+        text: [
+          "✅ Нова підтверджена оплата",
+          `Тариф: ${order.plan_name}`,
+          `Сума: ${order.amount} ${order.currency}`,
+          `Контакт: ${order.contact}`,
+          `Спосіб оплати: ${order.payment_method || "не вказано"}`,
+          `Замовлення: ${order.order_id}`
+        ].join("\n"),
+        disable_web_page_preview: true
+      }),
+      signal: AbortSignal.timeout(10000)
+    }
+  );
+
+  const result = await response.json().catch(() => ({}));
+  if (!response.ok || result.ok !== true) {
+    throw new Error(
+      `Telegram notification failed (${response.status}): ${result.description || "unknown error"}`
+    );
+  }
+}
+
+async function notifyPaymentConfirmed(order, env, requestId) {
+  if (
+    !order
+    || order.provider_status !== "CONFIRMED"
+    || !env.TELEGRAM_BOT_TOKEN
+    || !env.TELEGRAM_CHAT_ID
+  ) {
+    if (
+      order
+      && order.provider_status === "CONFIRMED"
+      && (!env.TELEGRAM_BOT_TOKEN || !env.TELEGRAM_CHAT_ID)
+    ) {
+      console.error(`[payments][${requestId}] Telegram notification secrets are missing`);
+    }
+    return false;
+  }
+
+  await env.DB.prepare(
+    `CREATE TABLE IF NOT EXISTS payment_notifications (
+       order_id TEXT PRIMARY KEY,
+       created_at INTEGER NOT NULL,
+       sent_at INTEGER,
+       FOREIGN KEY (order_id) REFERENCES payment_orders(order_id) ON DELETE CASCADE
+     )`
+  ).run();
+
+  const now = Date.now();
+  const claim = await env.DB.prepare(
+    `INSERT OR IGNORE INTO payment_notifications (order_id, created_at)
+     VALUES (?, ?)`
+  ).bind(order.order_id, now).run();
+
+  if (!claim.meta || Number(claim.meta.changes) !== 1) {
+    return false;
+  }
+
+  try {
+    await sendTelegramPaymentNotification(order, env);
+    await env.DB.prepare(
+      "UPDATE payment_notifications SET sent_at = ? WHERE order_id = ?"
+    ).bind(Date.now(), order.order_id).run();
+    return true;
+  } catch (error) {
+    await env.DB.prepare(
+      "DELETE FROM payment_notifications WHERE order_id = ? AND sent_at IS NULL"
+    ).bind(order.order_id).run();
+    throw error;
+  }
+}
+
 async function refreshOrderStatus(order, env, requestId) {
   if (
     order.provider_status !== "PENDING"
@@ -451,6 +539,13 @@ async function handlePaymentStatus(request, env, requestId) {
   }
 
   order = await refreshOrderStatus(order, env, requestId);
+  if (order && order.provider_status === "CONFIRMED") {
+    try {
+      await notifyPaymentConfirmed(order, env, requestId);
+    } catch (error) {
+      console.error(`[payments][${requestId}] ${error.message}`);
+    }
+  }
   return jsonResponse(publicOrder(order));
 }
 
@@ -543,6 +638,16 @@ async function handleWebhook(request, env, requestId) {
       Date.now(),
       orderId
     ).run();
+
+    if (status === "CONFIRMED") {
+      await notifyPaymentConfirmed({
+        ...order,
+        status,
+        provider_status: status,
+        payment_method: payload.paymentMethod || order.payment_method || null,
+        updated_at: Date.now()
+      }, env, requestId);
+    }
   }
 
   return emptyResponse(200);

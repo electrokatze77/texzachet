@@ -25,6 +25,17 @@ PLATEGA_MERCHANT_ID
 PLATEGA_SECRET
 ```
 
+Для сповіщень про підтверджені оплати в Telegram додайте ще два secrets:
+
+```text
+TELEGRAM_BOT_TOKEN
+TELEGRAM_CHAT_ID
+```
+
+Worker надсилає повідомлення лише один раз для кожного підтвердженого замовлення.
+Якщо Telegram тимчасово недоступний, запис про сповіщення не фіксується й наступний
+callback або перевірка статусу повторить спробу.
+
 За бажанням додайте звичайну змінну:
 
 ```text
@@ -44,6 +55,7 @@ APP_URL=https://texzachet.com
 Схема створює таблиці:
 
 - `payment_orders` — замовлення і статуси транзакцій;
+- `payment_notifications` — захист Telegram-сповіщень від повторного надсилання;
 - `payment_rate_limits` — захист endpoint-а від масових запитів.
 
 ## 3. Прив’язка D1 до Pages
@@ -109,7 +121,7 @@ POST /api/platega-webhook
 
 | Тариф | Сума |
 |---|---:|
-| LITE | 50 RUB |
+| LITE | 1 RUB |
 | PRO | 3000 RUB |
 | EXPERT | 3900 RUB |
 

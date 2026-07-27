@@ -25,9 +25,15 @@ CREATE UNIQUE INDEX IF NOT EXISTS idx_payment_orders_transaction
 CREATE INDEX IF NOT EXISTS idx_payment_orders_status
   ON payment_orders(provider_status);
 
+CREATE TABLE IF NOT EXISTS payment_notifications (
+  order_id TEXT PRIMARY KEY,
+  created_at INTEGER NOT NULL,
+  sent_at INTEGER,
+  FOREIGN KEY (order_id) REFERENCES payment_orders(order_id) ON DELETE CASCADE
+);
+
 CREATE TABLE IF NOT EXISTS payment_rate_limits (
   client_key TEXT PRIMARY KEY,
   window_started_at INTEGER NOT NULL,
   attempt_count INTEGER NOT NULL
 );
-
