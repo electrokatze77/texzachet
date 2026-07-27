@@ -52,56 +52,7 @@ function emptyResponse(status = 200, extraHeaders = {}) {
 }
 
 function geoBlockedResponse() {
-  return new Response(
-    `<!DOCTYPE html>
-<html lang="ru">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="robots" content="noindex, nofollow">
-  <title>Сайт недоступен в вашем регионе</title>
-  <style>
-    :root { color-scheme: light dark; }
-    * { box-sizing: border-box; }
-    body {
-      min-height: 100vh;
-      margin: 0;
-      display: grid;
-      place-items: center;
-      padding: 24px;
-      background: #0d1020;
-      color: #f5f5f7;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    }
-    main {
-      width: min(100%, 560px);
-      padding: 40px 32px;
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      border-radius: 20px;
-      background: #171a2b;
-      text-align: center;
-      box-shadow: 0 24px 70px rgba(0, 0, 0, 0.35);
-    }
-    h1 { margin: 0 0 14px; font-size: clamp(26px, 5vw, 38px); line-height: 1.15; }
-    p { margin: 0; color: #b9bdd0; font-size: 17px; line-height: 1.6; }
-  </style>
-</head>
-<body>
-  <main>
-    <h1>Сайт недоступен в вашем регионе</h1>
-    <p>Доступ к сайту с территории Украины ограничен.</p>
-  </main>
-</body>
-</html>`,
-    {
-      status: 451,
-      headers: {
-        ...EMPTY_HEADERS,
-        "Content-Security-Policy": "default-src 'none'; style-src 'unsafe-inline'; base-uri 'none'; frame-ancestors 'none'",
-        "Content-Type": "text/html; charset=utf-8"
-      }
-    }
-  );
+  return Response.error();
 }
 
 function shouldGeoBlock(request, pathname) {
