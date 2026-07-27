@@ -175,9 +175,9 @@
       type: 'metric',
       icon: 'bi-cpu',
       label: '<span class="problem-label">Проблема</span>',
-      title: '24%',
+      title: '78%',
       subtitle: 'Троттлинг',
-      progress: 76,
+      progress: 78,
       progressMode: 'drop'
     },
     {
