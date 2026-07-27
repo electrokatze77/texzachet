@@ -4419,6 +4419,50 @@ font-size: 39px;
   transform: translateX(4px);
 }
 
+.pricing .pricing-exclusion-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  margin: 6px auto 0;
+  padding: 22px 24px;
+  max-width: 980px;
+  border: 1px solid color-mix(in srgb, var(--accent-color), transparent 78%);
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--surface-color), var(--accent-color) 3%);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.04);
+}
+
+.pricing .pricing-exclusion-note-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 42px;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  color: var(--accent-color);
+  background: color-mix(in srgb, var(--accent-color), transparent 88%);
+}
+
+.pricing .pricing-exclusion-note-icon i {
+  font-size: 21px;
+}
+
+.pricing .pricing-exclusion-note h3 {
+  margin: 0 0 7px;
+  color: var(--heading-color);
+  font-size: 19px;
+  font-weight: 750;
+  line-height: 1.3;
+}
+
+.pricing .pricing-exclusion-note p {
+  margin: 0;
+  color: color-mix(in srgb, var(--default-color), transparent 22%);
+  font-size: 15px;
+  line-height: 1.6;
+}
+
 @media (max-width: 992px) {
   .pricing .pricing-card {
     max-width: 400px;
@@ -4474,6 +4518,28 @@ font-size: 39px;
   .pricing .plan-cta {
     padding-left: 20px;
     padding-right: 20px;
+  }
+
+  .pricing .pricing-exclusion-note {
+    gap: 12px;
+    margin-left: 8px;
+    margin-right: 8px;
+    padding: 18px;
+  }
+
+  .pricing .pricing-exclusion-note-icon {
+    flex-basis: 36px;
+    width: 36px;
+    height: 36px;
+  }
+
+  .pricing .pricing-exclusion-note h3 {
+    font-size: 17px;
+  }
+
+  .pricing .pricing-exclusion-note p {
+    font-size: 14px;
+    line-height: 1.55;
   }
 }
 

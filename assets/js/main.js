@@ -196,7 +196,7 @@
       label: 'Средний FPS <span class="fps-gpu-text">(5070 115W FHD)</span>',
       rows: [
         { name: 'Cyberpunk 2077', value: '118 FPS', progress: 72 },
-        { name: 'Black Myth: Wukong', value: '74 FPS', progress: 45 },
+        { name: 'Black Myth', value: '74 FPS', progress: 45 },
         { name: 'Atomic Heart', value: '96 FPS', progress: 58 }
       ]
     },
