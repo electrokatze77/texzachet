@@ -6,7 +6,7 @@ const ALLOWED_STATUSES = new Set([
   "CHARGEBACKED"
 ]);
 const PLANS = Object.freeze({
-  lite: Object.freeze({ name: "LITE", amount: 1, currency: "USD" }),
+  lite: Object.freeze({ name: "LITE", amount: 50, currency: "RUB" }),
   pro: Object.freeze({ name: "PRO", amount: 3000, currency: "RUB" }),
   expert: Object.freeze({ name: "EXPERT", amount: 3900, currency: "RUB" })
 });

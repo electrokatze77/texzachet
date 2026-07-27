@@ -109,7 +109,7 @@ POST /api/platega-webhook
 
 | Тариф | Сума |
 |---|---:|
-| LITE | 1 USD |
+| LITE | 50 RUB |
 | PRO | 3000 RUB |
 | EXPERT | 3900 RUB |
 
