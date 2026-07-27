@@ -403,6 +403,32 @@
   window.addEventListener("load", initSwiper);
 
   /**
+   * Play recommendation demos only while they are visible.
+   */
+  const scrollVideos = document.querySelectorAll('[data-scroll-video]');
+
+  if (scrollVideos.length) {
+    const videoObserver = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        const video = entry.target;
+
+        if (entry.isIntersecting) {
+          video.muted = true;
+          video.play().catch(() => {
+            // Autoplay can still be denied by user-level browser settings.
+          });
+        } else {
+          video.pause();
+        }
+      });
+    }, {
+      threshold: 0.35
+    });
+
+    scrollVideos.forEach((video) => videoObserver.observe(video));
+  }
+
+  /**
    * Frequently Asked Questions Toggle
    */
   document.querySelectorAll('.faq-item h3, .faq-item .faq-toggle, .faq-item .faq-header').forEach((faqItem) => {
