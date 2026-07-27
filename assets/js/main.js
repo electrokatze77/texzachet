@@ -177,7 +177,7 @@
       label: '<span class="problem-label">Проблема</span>',
       title: '78%',
       subtitle: 'Троттлинг',
-      progress: 78,
+      progress: 22,
       progressMode: 'drop'
     },
     {
