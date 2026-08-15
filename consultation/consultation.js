@@ -421,7 +421,11 @@
     const conclusion = text(item.customConclusion) || (role === "anti" ? text(model.notes) || text(details.cons) : text(model.notes));
     const reason = $("#recommendation-reason");
     reason.hidden = !conclusion;
-    $("#reason-label").textContent = role === "anti" ? "Почему я не рекомендую эту модель" : "Почему эта модель в подборе";
+    $("#reason-label").textContent = role === "anti"
+      ? "Почему я не рекомендую эту модель"
+      : role === "recommendation" && Number(item.rank) === 1
+        ? "Почему эта модель — лучшая в подборе"
+        : "Почему эта модель в подборе";
     $("#reason-text").textContent = conclusion;
 
     const insights = $("#insights");
