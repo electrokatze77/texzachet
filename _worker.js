@@ -55,9 +55,15 @@ function geoBlockedResponse() {
   return Response.error();
 }
 
+function isConsultationPath(pathname) {
+  return /^\/c\/[A-Za-z0-9_-]{40,64}\/?$/.test(pathname);
+}
+
 function shouldGeoBlock(request, pathname) {
   const country = String((request.cf && request.cf.country) || "").toUpperCase();
-  return BLOCKED_COUNTRIES.has(country) && !PLATEGA_WEBHOOK_PATHS.has(pathname);
+  return BLOCKED_COUNTRIES.has(country)
+    && !PLATEGA_WEBHOOK_PATHS.has(pathname)
+    && !isConsultationPath(pathname);
 }
 
 function requireBindings(env) {
@@ -691,6 +697,11 @@ export default {
     const pathname = url.pathname.replace(/\/+$/, "") || "/";
     if (shouldGeoBlock(request, pathname)) {
       return geoBlockedResponse();
+    }
+
+    if (isConsultationPath(pathname)) {
+      const consultationUrl = new URL("/consultation/index.html", request.url);
+      return env.ASSETS.fetch(new Request(consultationUrl, request));
     }
 
     if (!url.pathname.startsWith("/api/")) {

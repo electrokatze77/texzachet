@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex,nofollow,noarchive">
+  <meta name="referrer" content="no-referrer">
+  <meta name="theme-color" content="#040000">
+  <title>Персональная консультация — ТехЗачёт</title>
+  <link rel="icon" href="/assets/img/favicon.png">
+  <link rel="apple-touch-icon" href="/assets/img/apple-touch-icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;family=Raleway:wght@600;700;800;900&amp;display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/consultation/consultation.css">
+  <script src="/consultation/consultation.js" defer></script>
+</head>
+<body>
+  <header class="site-header">
+    <div class="shell header-inner">
+      <a class="brand" href="/" aria-label="ТехЗачёт — на главную">
+        <img src="/assets/img/11122MAIN (0-00-02-50).png" alt="ТехЗачёт">
+      </a>
+      <span class="header-label">Персональная консультация</span>
+    </div>
+  </header>
+
+  <main class="shell page-main">
+    <section id="status" class="status-card" aria-live="polite" aria-busy="true">
+      <div class="loader" aria-hidden="true"></div>
+      <p class="eyebrow">ТехЗачёт</p>
+      <h1 id="status-title">Загружаем вашу консультацию</h1>
+      <p id="status-message">Собираем рекомендации и результаты тестов.</p>
+      <button id="retry-button" class="retry-button" type="button" hidden>Попробовать снова</button>
+    </section>
+
+    <article id="consultation" class="consultation" hidden>
+      <section class="consultation-hero">
+        <div class="hero-glow" aria-hidden="true"></div>
+        <div class="hero-topline">
+          <span id="tariff" class="tariff-badge"></span>
+          <span class="private-badge">Только по вашей ссылке</span>
+        </div>
+        <p id="client-name" class="eyebrow"></p>
+        <h1 id="consultation-title"></h1>
+        <p id="consultation-intro" class="hero-intro"></p>
+        <dl id="consultation-meta" class="consultation-meta"></dl>
+      </section>
+
+      <section class="models-section" aria-labelledby="models-title">
+        <div class="section-heading">
+          <p class="eyebrow">Результат подбора</p>
+          <h2 id="models-title">Рекомендованные модели</h2>
+        </div>
+        <div id="models-list" class="models-list"></div>
+      </section>
+
+      <section id="conclusion-section" class="conclusion-card" hidden>
+        <p class="eyebrow">Итог эксперта</p>
+        <h2>Вывод</h2>
+        <p id="consultation-conclusion"></p>
+      </section>
+    </article>
+  </main>
+
+  <footer class="site-footer">
+    <div class="shell footer-inner">
+      <span>© ТехЗачёт</span>
+      <div class="footer-links">
+        <a href="/privacy.html">Конфиденциальность</a>
+        <a href="/terms.html">Соглашение</a>
+        <a href="https://t.me/texwizard" target="_blank" rel="noopener noreferrer">Поддержка</a>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>
