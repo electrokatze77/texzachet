@@ -345,6 +345,9 @@ body { font-size: 17px; }
 .recommendation-reason > span { display: block; margin-bottom: 5px; color: #c8aaff; font-size: 28px; font-weight: 460; }
 .recommendation-reason p { font-size: 18px; }
 
+.visual-panel { display: flex; align-items: center; justify-content: flex-start; }
+.image-wrap { flex: 0 0 auto; align-items: start; margin-top: 72px; }
+
 @media (max-width: 820px) {
   .product-panel { padding-right: 28px; padding-left: 28px; }
   .expandable-content { max-height: 500px; }
@@ -355,4 +358,5 @@ body { font-size: 17px; }
   .comparison-tabs button { grid-column: span 2; }
   .comparison-tabs button:nth-child(4),
   .comparison-tabs button:nth-child(5) { grid-column: span 3; }
+  .image-wrap { margin-top: 62px; }
 }

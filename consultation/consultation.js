@@ -449,6 +449,14 @@
     tab.dataset.section = key;
     tab.addEventListener("click", (event) => {
       event.stopPropagation();
+      const isOpen = row.getAttribute("aria-expanded") === "true";
+      const isActive = tab.getAttribute("aria-selected") === "true";
+      if (isOpen && isActive) {
+        row.setAttribute("aria-expanded", "false");
+        content.hidden = true;
+        tab.setAttribute("aria-selected", "false");
+        return;
+      }
       row.setAttribute("aria-expanded", "true");
       content.hidden = false;
       row.querySelectorAll(".comparison-tabs button").forEach((button) => button.setAttribute("aria-selected", "false"));
