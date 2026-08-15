@@ -276,6 +276,7 @@ body { font-size: 17px; }
 .fps-list { display: grid; gap: 0; }
 .metric-row,
 .fps-row { display: grid; min-height: 42px; padding: 8px 0; border: 0; border-bottom: 1px solid rgb(255 255 255 / 9%); border-radius: 0; background: transparent; }
+.metric-row { height: auto; align-items: start; grid-auto-rows: auto; }
 .metric-row:first-child,
 .fps-row:first-child { border-top: 1px solid rgb(255 255 255 / 9%); }
 .metric-row { grid-template-columns: minmax(70px, 1fr) auto 8px; }
@@ -291,7 +292,9 @@ body { font-size: 17px; }
 .temperature-metric-row { grid-template-columns: minmax(108px, .85fr) minmax(0, 1.35fr) 8px; }
 .temperature-metric-row > span,
 .temperature-metric-row strong { overflow-wrap: normal; word-break: normal; }
-.temperature-metric-row strong { min-width: 0; color: #94a0b2; line-height: 1.35; }
+.temperature-metric-row > span,
+.temperature-metric-row strong { min-width: 0; overflow-wrap: anywhere; word-break: break-word; }
+.temperature-metric-row strong { color: #94a0b2; line-height: 1.35; }
 .temperature-metric-fragment[data-status="good"] { color: #65c66a; }
 .temperature-metric-fragment[data-status="warning"] { color: #e99a3d; }
 .temperature-metric-fragment[data-status="bad"] { color: #ef5964; }
@@ -348,4 +351,8 @@ body { font-size: 17px; }
   .copy-button { width: 44px; min-width: 44px; max-width: 44px; padding: 0; justify-content: center; overflow: hidden; font-size: 0; }
   .copy-button .copy-label { display: none; }
   .copy-button > span:first-child { flex: 0 0 auto; font-size: 18px; }
+  .comparison-tabs { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+  .comparison-tabs button { grid-column: span 2; }
+  .comparison-tabs button:nth-child(4),
+  .comparison-tabs button:nth-child(5) { grid-column: span 3; }
 }
