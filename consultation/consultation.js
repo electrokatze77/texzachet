@@ -436,8 +436,6 @@
       addInsight(insights, "FPS", "⌁", "fps", details.fps);
     }
     if (!insights.childElementCount) insights.append(element("p", "empty-detail", "Для этой модели нет дополнительных данных в опубликованной консультации."));
-    const conclusionsButton = $("#conclusions-button");
-    if (conclusionsButton) conclusionsButton.hidden = !insights.childElementCount;
     if (shouldScroll) window.requestAnimationFrame(scrollToActiveModel);
   }
 
@@ -603,9 +601,6 @@
   selectorControl.addEventListener("click", () => { const opening = selectorMenu.hidden; selectorMenu.hidden = !opening; selectorControl.setAttribute("aria-expanded", String(opening)); });
   document.addEventListener("pointerdown", (event) => { if (!$("#model-selector").contains(event.target)) { selectorMenu.hidden = true; selectorControl.setAttribute("aria-expanded", "false"); } });
   $("#copy-button").addEventListener("click", () => { void copyLink(); });
-  $("#conclusions-button").addEventListener("click", () => {
-    $("#insights").scrollIntoView({ behavior: "smooth", block: "start" });
-  });
   retryButton.addEventListener("click", loadConsultation);
   loadConsultation();
 })();
