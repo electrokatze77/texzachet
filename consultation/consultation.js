@@ -459,9 +459,17 @@
     const header = element("header", "comparison-header");
     header.append(element("h2", "", title), element("p", "", description));
     const list = element("div", "comparison-list");
+    if (variant === "recommendations") list.append(comparisonTableHeader());
     entries.forEach((view) => list.append(comparisonRow(view)));
     section.append(header, list);
     return section;
+  }
+
+  function comparisonTableHeader() {
+    const row = element("div", "comparison-table-header");
+    ["№", "Модель", "GPU", "CPU", "RAM / SSD", "Дисплей", "Цена", "Игры", "Работа", "Контент", "Стабильность"]
+      .forEach((label) => row.append(element("span", "", label)));
+    return row;
   }
 
   function comparisonRow(view) {
