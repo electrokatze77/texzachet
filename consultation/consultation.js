@@ -3,59 +3,82 @@
 
   const API_ORIGIN = "https://app.techrate.com.ua";
   const TOKEN_PATTERN = /^[A-Za-z0-9_-]{40,64}$/;
-  const ROLE_LABELS = Object.freeze({
-    recommendation: "Рекомендация",
-    alternative: "Альтернатива",
-    upgrade: "Апгрейд",
-    anti: "Не рекомендуется"
+  const ROLE = Object.freeze({
+    recommendation: { label: "Рекомендация", hero: "Главная рекомендация", mark: "★", position: null },
+    alternative: { label: "Альтернатива", hero: "Альтернатива к рекомендации", mark: "+", position: "+" },
+    upgrade: { label: "Вариант с доплатой", hero: "Вариант с доплатой", mark: "★", position: "+" },
+    anti: { label: "Не рекомендую", hero: "Не рекомендую к покупке", mark: "×", position: "×" }
   });
-  const TARIFF_LABELS = Object.freeze({
-    lite: "Lite",
-    pro: "Pro",
-    expert: "Expert"
+  const TARIFFS = Object.freeze({ lite: "Lite", pro: "Pro", expert: "Expert" });
+  const GPU_COLORS = Object.freeze({
+    "RTX 5090": "#cc0000", "RTX 4090": "#e06666", "RTX 5080": "#ff00ff", "RTX 5070 TI": "#9900ff",
+    "RTX 5070": "#0000ff", "RTX 5060": "#3c78d8", "RTX 4080": "#134f5c", "RTX 4070": "#38761d",
+    "RTX 4060": "#34a870", "RTX 5050": "#ff9900", "RTX 4050": "#93c47d", "RX 7600S": "#7f6000", "RADEON 780M": "#073763"
   });
 
-  const status = document.querySelector("#status");
-  const statusTitle = document.querySelector("#status-title");
-  const statusMessage = document.querySelector("#status-message");
-  const loader = document.querySelector(".loader");
-  const retryButton = document.querySelector("#retry-button");
-  const consultationView = document.querySelector("#consultation");
-  const modelsList = document.querySelector("#models-list");
+  const $ = (selector) => document.querySelector(selector);
+  const status = $("#status");
+  const statusTitle = $("#status-title");
+  const statusMessage = $("#status-message");
+  const retryButton = $("#retry-button");
+  const consultationView = $("#consultation");
+  const selectorMenu = $("#selector-menu");
+  const selectorControl = $("#selector-control");
+  let views = [];
+  let activeIndex = 0;
+
+  function element(tag, className, text) {
+    const node = document.createElement(tag);
+    if (className) node.className = className;
+    if (text !== undefined && text !== null) node.textContent = String(text);
+    return node;
+  }
 
   function hasValue(value) {
-    return value !== null
-      && value !== undefined
-      && (typeof value !== "string" || value.trim() !== "");
+    return value !== null && value !== undefined && (typeof value !== "string" || value.trim() !== "");
   }
 
-  function asText(value) {
-    if (!hasValue(value)) {
-      return "";
+  function text(value) {
+    return hasValue(value) && typeof value !== "object" ? String(value).trim() : "";
+  }
+
+  function effective(model, overrides, name) {
+    const aliases = name === "name" ? ["name", "model"] : name === "price" ? ["price", "priceText"] : [name];
+    for (const key of aliases) {
+      if (hasValue(overrides[key])) return overrides[key];
     }
-    if (typeof value === "object") {
-      return "";
+    for (const key of aliases) {
+      if (hasValue(model[key])) return model[key];
     }
-    return String(value).trim();
+    return "";
   }
 
-  function firstValue(primary, fallback) {
-    return hasValue(primary) ? primary : fallback;
-  }
-
-  function field(model, overrides, name) {
-    return firstValue(overrides[name], model[name]);
+  function normalizeRole(role) {
+    if (role === "anti" || role === "anti_recommendation") return "anti";
+    return Object.prototype.hasOwnProperty.call(ROLE, role) ? role : "recommendation";
   }
 
   function safeUrl(value, base) {
-    const source = asText(value);
-    if (!source) {
+    const source = text(value);
+    if (!source) return null;
+    try {
+      const parsed = base ? new URL(source, base) : new URL(source);
+      return parsed.protocol === "http:" || parsed.protocol === "https:" ? parsed : null;
+    } catch {
       return null;
     }
+  }
 
+  function localImageUrl(value) {
+    const source = text(value);
+    if (!source) return null;
     try {
-      const url = base ? new URL(source, base) : new URL(source);
-      return url.protocol === "http:" || url.protocol === "https:" ? url : null;
+      const parsed = new URL(source, API_ORIGIN);
+      const prefix = "/api/laptop-images/";
+      if (!parsed.pathname.startsWith(prefix)) return null;
+      const decodedPath = decodeURIComponent(parsed.pathname.slice(prefix.length));
+      const filename = decodedPath.split("/").pop();
+      return filename ? `/assets/laptop-images/${encodeURIComponent(filename)}` : null;
     } catch {
       return null;
     }
@@ -63,24 +86,22 @@
 
   function externalLink(value, label, className) {
     const url = safeUrl(value);
-    if (!url) {
-      return null;
-    }
-
-    const link = document.createElement("a");
+    if (!url) return null;
+    const link = element("a", className, label);
     link.href = url.href;
     link.target = "_blank";
     link.rel = "noopener noreferrer";
-    link.textContent = label;
-    if (className) {
-      link.className = className;
-    }
     return link;
   }
 
   function getToken() {
     const parts = window.location.pathname.split("/").filter(Boolean);
     return parts.length === 2 && parts[0] === "c" ? parts[1] : "";
+  }
+
+  function listLines(value) {
+    const raw = Array.isArray(value) ? value : text(value).split(/\r?\n|(?=\s*[•▪●◦✓✕×]\s+)/);
+    return raw.map((line) => text(line).replace(/^[\s•▪●◦*\-–—✓✕×]+/, "").trim()).filter(Boolean);
   }
 
   function setState(type, title, message) {
@@ -90,380 +111,333 @@
     status.setAttribute("aria-busy", type === "loading" ? "true" : "false");
     statusTitle.textContent = title;
     statusMessage.textContent = message;
-    loader.hidden = type !== "loading";
+    $(".loader").hidden = type !== "loading";
     retryButton.hidden = type !== "error";
   }
 
-  function addMeta(container, label, value) {
-    const text = asText(value);
-    if (!text) {
-      return;
-    }
-
-    const wrapper = document.createElement("div");
-    wrapper.className = "meta-item";
-    const term = document.createElement("dt");
-    const description = document.createElement("dd");
-    term.textContent = label;
-    description.textContent = text;
-    wrapper.append(term, description);
-    container.append(wrapper);
+  function scoreColor(value) {
+    const number = Number(value);
+    if (!Number.isFinite(number)) return "#697387";
+    if (number >= 8) return "#48ce91";
+    if (number >= 6) return "#5799ed";
+    if (number >= 4) return "#f1a044";
+    return "#f05a68";
   }
 
-  function addBadge(container, text, className) {
-    if (!text) {
-      return;
+  function scoreNode(label, value, table) {
+    const numeric = Number(value);
+    const valid = hasValue(value) && Number.isFinite(numeric);
+    const normalized = valid ? Math.min(10, Math.max(0, numeric)) : 0;
+    const ring = element("span", table ? "table-score" : "score-ring");
+    ring.style.setProperty("--score-color", scoreColor(value));
+    ring.style.setProperty("--score-progress", `${normalized * 10}%`);
+    ring.append(element("strong", "", valid ? normalized.toFixed(1) : "—"));
+    if (!table) {
+      const card = element("div", "score-card");
+      card.append(ring, element("span", "", label));
+      return card;
     }
-    const badge = document.createElement("span");
-    badge.className = className;
-    badge.textContent = text;
-    container.append(badge);
+    const wrapper = element("div", "table-score-wrap");
+    wrapper.append(ring, element("small", "", label));
+    return wrapper;
+  }
+
+  function gpuColor(value) {
+    const upper = text(value).toUpperCase();
+    const key = Object.keys(GPU_COLORS).find((candidate) => upper.includes(candidate));
+    return key ? GPU_COLORS[key] : "#8f98aa";
+  }
+
+  function roleDescription(item) {
+    const role = normalizeRole(item.role);
+    if (role === "alternative") return item.relatedToRank ? `Альтернатива к рекомендации №${text(item.relatedToRank)}` : ROLE.alternative.hero;
+    if (role === "recommendation") return Number(item.rank) === 1 ? ROLE.recommendation.hero : `Рекомендация №${text(item.rank) || "—"}`;
+    return ROLE[role].hero;
+  }
+
+  function viewFor(item, consultation, index) {
+    const models = consultation.models && typeof consultation.models === "object" ? consultation.models : {};
+    const model = models[item.modelId] && typeof models[item.modelId] === "object" ? models[item.modelId] : {};
+    return { item, model, overrides: item.overrides && typeof item.overrides === "object" ? item.overrides : {}, index, role: normalizeRole(item.role) };
+  }
+
+  function modelName(view) {
+    return text(effective(view.model, view.overrides, "name")) || "Модель без названия";
+  }
+
+  function selectorLabel(view) {
+    const prefix = view.role === "anti" ? "×" : view.role === "alternative" || view.role === "upgrade" ? "+" : `№${text(view.item.rank) || "—"}`;
+    return `${prefix} — ${modelName(view)}`;
+  }
+
+  function extraLinks(item) {
+    if (!Array.isArray(item.extraLinks)) return [];
+    return item.extraLinks.map((entry, index) => {
+      if (typeof entry === "string") return { url: entry, label: `Дополнительная ссылка ${index + 1}` };
+      if (!entry || typeof entry !== "object") return null;
+      return { url: entry.url || entry.href, label: text(entry.label || entry.title || entry.name) || `Дополнительная ссылка ${index + 1}` };
+    }).filter(Boolean);
+  }
+
+  function renderSelector() {
+    selectorMenu.replaceChildren();
+    views.forEach((view, index) => {
+      const option = element("button", "selector-option", selectorLabel(view));
+      option.type = "button";
+      option.setAttribute("role", "option");
+      option.setAttribute("aria-selected", String(index === activeIndex));
+      option.addEventListener("click", () => { activeIndex = index; selectorMenu.hidden = true; selectorControl.setAttribute("aria-expanded", "false"); renderActive(); });
+      selectorMenu.append(option);
+    });
   }
 
   function addSpec(container, label, value) {
-    const text = asText(value);
-    if (!text) {
-      return;
-    }
-
-    const item = document.createElement("div");
-    item.className = "spec-item";
-    const itemLabel = document.createElement("span");
-    itemLabel.className = "spec-label";
-    itemLabel.textContent = label;
-    const itemValue = document.createElement("span");
-    itemValue.className = "spec-value";
-    itemValue.textContent = text;
-    item.append(itemLabel, itemValue);
-    container.append(item);
+    const row = element("div");
+    row.append(element("dt", "", label), element("dd", "", text(value) || "—"));
+    container.append(row);
   }
 
-  function addScore(container, label, value) {
-    const text = asText(value);
-    if (!text) {
-      return;
-    }
-
-    const item = document.createElement("div");
-    item.className = "score-item";
-    const itemLabel = document.createElement("span");
-    itemLabel.className = "score-label";
-    itemLabel.textContent = label;
-    const itemValue = document.createElement("span");
-    itemValue.className = "score-value";
-    itemValue.textContent = text;
-    item.append(itemLabel, itemValue);
-    container.append(item);
+  function addInsight(container, title, icon, tone, value) {
+    const lines = listLines(value);
+    if (!lines.length) return;
+    const card = element("article", "insight-card");
+    card.dataset.tone = tone;
+    const header = element("header");
+    header.append(element("span", "", icon), element("h2", "", title));
+    const list = element("ul", "detail-list");
+    lines.forEach((line) => list.append(element("li", "", line)));
+    card.append(header, list);
+    container.append(card);
   }
 
-  function linesFrom(value) {
-    const source = Array.isArray(value) ? value : asText(value).split(/\r?\n/);
-    return source
-      .map((line) => asText(line).replace(/^[\s•*\-–—]+/, "").trim())
-      .filter(Boolean);
-  }
-
-  function addDetail(container, title, value, options) {
-    const settings = options || {};
-    const lines = settings.list ? linesFrom(value) : [];
-    const text = settings.list ? "" : asText(value);
-    if ((!settings.list && !text) || (settings.list && !lines.length)) {
+  function renderImage(container, value, name) {
+    container.replaceChildren();
+    const url = localImageUrl(value);
+    if (!url) {
+      container.append(element("span", "image-placeholder", "Изображение модели не добавлено"));
       return;
     }
-
-    const block = document.createElement("section");
-    block.className = `detail-block${settings.wide ? " wide" : ""}`;
-    const heading = document.createElement("h3");
-    heading.textContent = title;
-    block.append(heading);
-
-    if (settings.list) {
-      const list = document.createElement("ul");
-      list.className = "detail-list";
-      lines.forEach((line) => {
-        const item = document.createElement("li");
-        item.textContent = line;
-        list.append(item);
-      });
-      block.append(list);
-    } else {
-      const paragraph = document.createElement("p");
-      paragraph.textContent = text;
-      block.append(paragraph);
-    }
-
-    container.append(block);
-  }
-
-  function normalizeExtraLink(entry, index) {
-    if (typeof entry === "string") {
-      return { url: entry, label: `Дополнительная ссылка ${index + 1}` };
-    }
-    if (!entry || typeof entry !== "object") {
-      return null;
-    }
-    return {
-      url: entry.url || entry.href,
-      label: asText(entry.label || entry.title || entry.name) || `Дополнительная ссылка ${index + 1}`
-    };
-  }
-
-  function addLinksBlock(container, extraLinks) {
-    if (!Array.isArray(extraLinks)) {
-      return;
-    }
-
-    const links = extraLinks
-      .map(normalizeExtraLink)
-      .map((entry) => entry && externalLink(entry.url, entry.label))
-      .filter(Boolean);
-
-    if (!links.length) {
-      return;
-    }
-
-    const block = document.createElement("section");
-    block.className = "detail-block wide";
-    const heading = document.createElement("h3");
-    heading.textContent = "Дополнительные материалы";
-    const list = document.createElement("ul");
-    list.className = "links-list";
-    links.forEach((link) => {
-      const item = document.createElement("li");
-      item.append(link);
-      list.append(item);
-    });
-    block.append(heading, list);
-    container.append(block);
-  }
-
-  function renderImage(container, imageValue, modelName) {
-    const imageUrl = safeUrl(imageValue, API_ORIGIN);
-    if (!imageUrl) {
-      const placeholder = document.createElement("span");
-      placeholder.className = "model-placeholder";
-      placeholder.textContent = "Изображение модели не добавлено";
-      container.append(placeholder);
-      return;
-    }
-
-    const image = document.createElement("img");
-    image.src = imageUrl.href;
-    image.alt = modelName ? `Ноутбук ${modelName}` : "Рекомендованный ноутбук";
-    image.loading = "lazy";
+    const image = element("img");
+    image.src = url;
+    image.alt = name;
+    image.loading = "eager";
     image.decoding = "async";
+    image.addEventListener("error", () => { image.replaceWith(element("span", "image-placeholder", "Изображение модели недоступно")); });
     container.append(image);
   }
 
-  function renderModel(item, consultation) {
-    const models = consultation.models && typeof consultation.models === "object"
-      ? consultation.models
-      : {};
-    const model = models[item.modelId] && typeof models[item.modelId] === "object"
-      ? models[item.modelId]
-      : {};
-    const overrides = item.overrides && typeof item.overrides === "object"
-      ? item.overrides
-      : {};
-    const role = Object.prototype.hasOwnProperty.call(ROLE_LABELS, item.role)
-      ? item.role
-      : "recommendation";
-    const modelName = asText(field(model, overrides, "name")) || "Модель без названия";
+  function renderActive() {
+    const view = views[activeIndex];
+    if (!view) return;
+    const { item, model, overrides, role } = view;
+    const name = modelName(view);
+    const image = effective(model, overrides, "imageUrl");
+    const productUrl = effective(model, overrides, "productUrl");
+    const price = text(effective(model, overrides, "price")) || "Цену уточняйте";
+    const details = {
+      pros: effective(model, overrides, "pros"), cons: effective(model, overrides, "cons"),
+      temperatures: effective(model, overrides, "temperaturesAndNoise"), fps: effective(model, overrides, "fps")
+    };
 
-    const card = document.createElement("article");
-    card.className = "model-card";
-    card.dataset.role = role;
+    selectorControl.querySelector("span").textContent = selectorLabel(view);
+    renderSelector();
+    const activeRole = $("#active-role");
+    activeRole.dataset.role = role;
+    activeRole.querySelector("span").textContent = ROLE[role].mark;
+    activeRole.querySelector("strong").textContent = roleDescription(item);
+    const rank = $("#rank-badge");
+    rank.dataset.role = role;
+    rank.querySelector("strong").textContent = ROLE[role].position || text(item.rank) || "—";
+    $("#model-name").textContent = name;
+    $("#model-price").textContent = price;
+    renderImage($("#image-wrap"), image, name);
 
-    const main = document.createElement("div");
-    main.className = "model-card-main";
-    const media = document.createElement("div");
-    media.className = "model-media";
-    renderImage(media, field(model, overrides, "imageUrl"), modelName);
+    const specs = $("#specs");
+    specs.replaceChildren();
+    addSpec(specs, "GPU", effective(model, overrides, "gpu"));
+    addSpec(specs, "CPU", effective(model, overrides, "cpu"));
+    addSpec(specs, "RAM", effective(model, overrides, "ram"));
+    addSpec(specs, "SSD", effective(model, overrides, "storage"));
+    addSpec(specs, "Дисплей", effective(model, overrides, "display"));
 
-    const summary = document.createElement("div");
-    summary.className = "model-summary";
-    const badges = document.createElement("div");
-    badges.className = "model-badges";
-    addBadge(badges, hasValue(item.rank) ? `№ ${asText(item.rank)}` : "", "rank-badge");
-    addBadge(badges, ROLE_LABELS[role], `role-badge ${role}`);
-    addBadge(
-      badges,
-      hasValue(item.relatedToRank) ? `Связано с № ${asText(item.relatedToRank)}` : "",
-      "related-badge"
-    );
+    const actions = $("#purchase-actions");
+    actions.replaceChildren();
+    const mainLink = externalLink(productUrl, "Сравнить цены", "primary-action");
+    actions.append(mainLink || element("span", "disabled-action", "Цены недоступны"));
+    const secondary = extraLinks(item).map((link) => externalLink(link.url, link.label, "secondary-action")).find(Boolean);
+    if (secondary) actions.append(secondary);
 
-    const name = document.createElement("h2");
-    name.className = "model-name";
-    name.textContent = modelName;
-    summary.append(badges, name);
+    const scorePanel = $("#score-panel");
+    scorePanel.replaceChildren();
+    [["Игры", "gamingScore"], ["Работа", "workScore"], ["Контент", "contentScore"], ["Стабильность", "stabilityScore"]]
+      .forEach(([label, key]) => scorePanel.append(scoreNode(label, effective(model, overrides, key), false)));
 
-    const price = asText(field(model, overrides, "price"));
-    if (price) {
-      const priceElement = document.createElement("p");
-      priceElement.className = "model-price";
-      priceElement.textContent = price;
-      summary.append(priceElement);
+    const conclusion = text(item.customConclusion) || (role === "anti" ? text(model.notes) || text(details.cons) : text(model.notes));
+    const reason = $("#recommendation-reason");
+    reason.hidden = !conclusion;
+    $("#reason-label").textContent = role === "anti" ? "Почему я не рекомендую эту модель" : "Почему эта модель в подборе";
+    $("#reason-text").textContent = conclusion;
+
+    const insights = $("#insights");
+    insights.replaceChildren();
+    insights.dataset.anti = String(role === "anti");
+    if (role === "anti") {
+      addInsight(insights, "Минусы", "×", "negative", details.cons);
+    } else {
+      addInsight(insights, "Плюсы", "✓", "positive", details.pros);
+      addInsight(insights, "Минусы", "×", "negative", details.cons);
+      addInsight(insights, "Температуры и шум", "♨", "temperature", details.temperatures);
+      addInsight(insights, "FPS", "⌁", "fps", details.fps);
     }
-
-    const specs = document.createElement("div");
-    specs.className = "specs-grid";
-    addSpec(specs, "Процессор", field(model, overrides, "cpu"));
-    addSpec(specs, "Видеокарта", field(model, overrides, "gpu"));
-    addSpec(specs, "Оперативная память", field(model, overrides, "ram"));
-    addSpec(specs, "Накопитель", field(model, overrides, "storage"));
-    addSpec(specs, "Экран", field(model, overrides, "display"));
-    if (specs.childElementCount) {
-      summary.append(specs);
-    }
-
-    const scores = document.createElement("div");
-    scores.className = "scores-grid";
-    addScore(scores, "Игры", field(model, overrides, "gamingScore"));
-    addScore(scores, "Работа", field(model, overrides, "workScore"));
-    addScore(scores, "Контент", field(model, overrides, "contentScore"));
-    addScore(scores, "Стабильность", field(model, overrides, "stabilityScore"));
-    if (scores.childElementCount) {
-      summary.append(scores);
-    }
-
-    const productLink = externalLink(
-      field(model, overrides, "productUrl"),
-      "Открыть страницу модели ↗",
-      "product-link"
-    );
-    if (productLink) {
-      summary.append(productLink);
-    }
-
-    main.append(media, summary);
-    card.append(main);
-
-    const details = document.createElement("div");
-    details.className = "model-details";
-    addDetail(details, "Комментарий эксперта", item.customConclusion, { wide: true });
-    addDetail(details, "Плюсы", field(model, overrides, "pros"), { list: true });
-    addDetail(details, "Минусы", field(model, overrides, "cons"), { list: true });
-    addDetail(details, "Температуры и шум", field(model, overrides, "temperaturesAndNoise"), { list: true });
-    addDetail(details, "FPS в играх", field(model, overrides, "fps"), { list: true });
-    addLinksBlock(details, item.extraLinks);
-    if (details.childElementCount) {
-      card.append(details);
-    }
-
-    return card;
+    if (!insights.childElementCount) insights.append(element("p", "empty-detail", "Для этой модели нет дополнительных данных в опубликованной консультации."));
   }
 
-  function tariffLabel(value) {
-    const key = asText(value).toLowerCase();
-    return TARIFF_LABELS[key] || asText(value);
+  function detailTab(row, title, icon, key, raw, tone) {
+    const content = row.querySelector(".comparison-detail-content");
+    const tab = element("button", "", `${icon} ${title}`);
+    tab.type = "button";
+    tab.dataset.section = key;
+    tab.addEventListener("click", (event) => {
+      event.stopPropagation();
+      row.setAttribute("aria-expanded", "true");
+      row.querySelectorAll(".comparison-tabs button").forEach((button) => button.setAttribute("aria-selected", "false"));
+      tab.setAttribute("aria-selected", "true");
+      content.dataset.section = key;
+      content.replaceChildren(element("h3", "", `${icon} ${title}`));
+      const lines = key === "conclusion" ? [] : listLines(raw);
+      if (key === "conclusion") content.append(element("p", "", text(raw) || "Нет отдельного вывода."));
+      else if (lines.length) { const list = element("ul", "detail-list"); lines.forEach((line) => list.append(element("li", "", line))); content.append(list); }
+      else content.append(element("p", "", "Для этой модели данных нет."));
+      content.style.setProperty("--detail-color", tone);
+    });
+    return tab;
   }
 
-  function renderConsultation(consultation) {
-    const clientName = asText(consultation.clientName);
-    const title = asText(consultation.title) || "Персональный подбор ноутбука";
-    const intro = asText(consultation.intro);
-    const conclusion = asText(consultation.conclusion);
+  function comparisonSection(title, description, variant, entries) {
+    if (!entries.length) return null;
+    const section = element("section", "comparison");
+    section.dataset.variant = variant;
+    const header = element("header", "comparison-header");
+    header.append(element("h2", "", title), element("p", "", description));
+    const list = element("div", "comparison-list");
+    entries.forEach((view) => list.append(comparisonRow(view)));
+    section.append(header, list);
+    return section;
+  }
 
-    document.title = `${title} — ТехЗачёт`;
-    document.querySelector("#tariff").textContent = tariffLabel(consultation.tariff) || "Консультация";
-    document.querySelector("#client-name").textContent = clientName ? `Подготовлено для ${clientName}` : "Персональная консультация";
-    document.querySelector("#consultation-title").textContent = title;
-    const introElement = document.querySelector("#consultation-intro");
-    introElement.textContent = intro;
-    introElement.hidden = !intro;
+  function comparisonRow(view) {
+    const { item, model, overrides, role } = view;
+    const row = element("article", "comparison-row-card");
+    row.dataset.role = role;
+    row.tabIndex = 0;
+    row.setAttribute("aria-expanded", "false");
+    const position = ROLE[role].position || text(item.rank) || "—";
+    const name = modelName(view);
+    const productUrl = effective(model, overrides, "productUrl");
+    const price = text(effective(model, overrides, "price")) || "—";
+    const cell = (className) => element("div", `comparison-cell${className ? ` ${className}` : ""}`);
+    const positionCell = cell(); positionCell.append(element("span", "position-badge", position)); row.append(positionCell);
+    const nameCell = cell(); const nameWrap = element("div", "comparison-name"); nameWrap.append(element("strong", "", name));
+    if (role !== "recommendation" || Number(item.rank) !== 1) nameWrap.append(element("span", "role-small", roleDescription(item)));
+    nameCell.append(nameWrap); row.append(nameCell);
+    const gpuCell = cell(); const gpu = element("span", "comparison-gpu", text(effective(model, overrides, "gpu")) || "—"); gpu.style.setProperty("--gpu-color", gpuColor(gpu.textContent)); gpuCell.append(gpu); row.append(gpuCell);
+    const cpuCell = cell(); cpuCell.textContent = text(effective(model, overrides, "cpu")) || "—"; row.append(cpuCell);
+    const memory = cell(); const memoryWrap = element("span", "ram-storage"); memoryWrap.append(element("span", "", text(effective(model, overrides, "ram")) || "—"), element("small", "", text(effective(model, overrides, "storage")) || "—")); memory.append(memoryWrap); row.append(memory);
+    const displayCell = cell(); displayCell.textContent = text(effective(model, overrides, "display")) || "—"; row.append(displayCell);
+    const priceCell = cell("comparison-price"); const priceLink = externalLink(productUrl, price, ""); priceCell.append(priceLink || document.createTextNode(price)); row.append(priceCell);
+    [["Игры", "gamingScore"], ["Работа", "workScore"], ["Контент", "contentScore"], ["Стабильность", "stabilityScore"]].forEach(([label, key]) => { const scoreCell = cell(); scoreCell.append(scoreNode(label, effective(model, overrides, key), true)); row.append(scoreCell); });
 
-    const meta = document.querySelector("#consultation-meta");
-    meta.replaceChildren();
-    addMeta(meta, "Клиент", clientName);
-    addMeta(meta, "Бюджет", consultation.budget);
-    addMeta(meta, "Тариф", tariffLabel(consultation.tariff));
-    meta.hidden = !meta.childElementCount;
+    const details = element("div", "comparison-details");
+    const tabs = element("div", "comparison-tabs"); tabs.setAttribute("role", "tablist");
+    const content = element("div", "comparison-detail-content"); content.hidden = true;
+    const conclusion = text(item.customConclusion) || (role === "anti" ? text(model.notes) || text(effective(model, overrides, "cons")) : text(model.notes));
+    const allTabs = [["Вывод", "?", "conclusion", conclusion, "#66a0ff"], ["Плюсы", "✓", "pros", effective(model, overrides, "pros"), "#48ce91"], ["Минусы", "×", "cons", effective(model, overrides, "cons"), "#f05a68"], ["Температуры и шум", "♨", "temperatures", effective(model, overrides, "temperaturesAndNoise"), "#f1a044"], ["FPS", "⌁", "fps", effective(model, overrides, "fps"), "#5799ed"]];
+    allTabs.filter((tab) => role !== "anti" || tab[2] === "conclusion" || tab[2] === "cons").filter((tab) => text(tab[3])).forEach((tab) => tabs.append(detailTab(row, tab[0], tab[1], tab[2], tab[3], tab[4])));
+    if (tabs.childElementCount) { details.append(tabs, content); row.append(details); }
+    const toggle = () => { if (!tabs.childElementCount) return; const open = row.getAttribute("aria-expanded") === "true"; row.setAttribute("aria-expanded", String(!open)); content.hidden = open; if (!open && !content.childElementCount) tabs.querySelector("button").click(); };
+    row.addEventListener("click", (event) => { if (event.target.closest("a, button")) return; toggle(); });
+    row.addEventListener("keydown", (event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); toggle(); } });
+    return row;
+  }
 
-    modelsList.replaceChildren();
-    const items = Array.isArray(consultation.items) ? consultation.items : [];
-    items
-      .filter((item) => item && typeof item === "object")
-      .forEach((item) => modelsList.append(renderModel(item, consultation)));
+  function renderComparisons() {
+    const root = $("#comparison-sections"); root.replaceChildren();
+    const regular = views.filter((view) => view.role !== "anti" && view.role !== "upgrade");
+    const upgrades = views.filter((view) => view.role === "upgrade");
+    const anti = views.filter((view) => view.role === "anti");
+    const sections = [
+      comparisonSection("Все рекомендации", "Быстрое сравнение характеристик, цен и оценок. Нажмите на модель, чтобы открыть подробности.", "recommendations", regular),
+      comparisonSection("Варианты с доплатой", "Модели с более высоким бюджетом и дополнительным запасом возможностей.", "upgrade", upgrades),
+      comparisonSection("Не рекомендую", "Модели, которые не подходят под задачи этой консультации.", "anti", anti)
+    ].filter(Boolean);
+    sections.forEach((section) => root.append(section));
+  }
 
-    if (!modelsList.childElementCount) {
-      const empty = document.createElement("p");
-      empty.className = "model-placeholder";
-      empty.textContent = "В этой консультации пока нет опубликованных моделей.";
-      modelsList.append(empty);
-    }
-
-    const conclusionSection = document.querySelector("#conclusion-section");
-    document.querySelector("#consultation-conclusion").textContent = conclusion;
-    conclusionSection.hidden = !conclusion;
-
-    status.hidden = true;
-    status.setAttribute("aria-busy", "false");
-    consultationView.hidden = false;
+  function tariff(value) {
+    const key = text(value).toLowerCase();
+    return TARIFFS[key] || text(value) || "Консультация";
   }
 
   function extractConsultation(payload) {
-    if (!payload || typeof payload !== "object" || Array.isArray(payload)) {
-      return null;
-    }
-    if (payload.consultation && typeof payload.consultation === "object") {
-      return payload.consultation;
-    }
-    if (payload.data && payload.data.consultation && typeof payload.data.consultation === "object") {
-      return payload.data.consultation;
-    }
+    if (!payload || typeof payload !== "object" || Array.isArray(payload)) return null;
+    if (payload.consultation && typeof payload.consultation === "object") return payload.consultation;
+    if (payload.data && payload.data.consultation && typeof payload.data.consultation === "object") return payload.data.consultation;
     return payload;
+  }
+
+  function renderConsultation(consultation) {
+    const items = Array.isArray(consultation.items) ? consultation.items.filter((item) => item && typeof item === "object") : [];
+    views = items.map((item, index) => viewFor(item, consultation, index)).filter((view) => Object.keys(view.model).length);
+    if (!views.length) { setState("not-found", "Консультация пока пуста", "В опубликованной консультации пока нет доступных моделей."); return; }
+    activeIndex = 0;
+    const title = text(consultation.title) || (text(consultation.clientName) ? `Подбор для ${text(consultation.clientName)}` : "Персональный подбор ноутбука");
+    document.title = `${title} — ТехЗачёт`;
+    $("#header-title").textContent = title;
+    $("#tariff-badge").textContent = tariff(consultation.tariff);
+    const budget = text(consultation.budget) || "Персональная консультация";
+    $("#header-subtitle").textContent = text(consultation.clientName) ? `${text(consultation.clientName)} • ${budget}` : budget;
+    $("#consultation-conclusion").textContent = text(consultation.conclusion);
+    $("#final").hidden = !text(consultation.conclusion);
+    renderComparisons();
+    renderActive();
+    status.hidden = true;
+    consultationView.hidden = false;
+  }
+
+  async function copyLink() {
+    const label = $("#copy-button .copy-label");
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+      label.textContent = "Ссылка скопирована";
+      window.setTimeout(() => { label.textContent = "Скопировать ссылку"; }, 1800);
+    } catch {
+      label.textContent = "Не удалось скопировать";
+      window.setTimeout(() => { label.textContent = "Скопировать ссылку"; }, 1800);
+    }
   }
 
   async function loadConsultation() {
     const token = getToken();
-    if (!TOKEN_PATTERN.test(token)) {
-      setState(
-        "invalid",
-        "Некорректная ссылка",
-        "Проверьте, что адрес консультации скопирован полностью."
-      );
-      return;
-    }
-
-    setState("loading", "Загружаем вашу консультацию", "Собираем рекомендации и результаты тестов.");
-
+    if (!TOKEN_PATTERN.test(token)) { setState("invalid", "Некорректная ссылка", "Проверьте, что адрес консультации скопирован полностью."); return; }
+    setState("loading", "Загружаем консультацию", "Собираем рекомендации и результаты тестов.");
     try {
       const endpoint = new URL(`/api/public/consultations/${encodeURIComponent(token)}`, API_ORIGIN);
-      const response = await fetch(endpoint.href, {
-        method: "GET",
-        headers: { "Accept": "application/json" },
-        cache: "no-store",
-        referrerPolicy: "no-referrer"
-      });
-
-      if (response.status === 400) {
-        setState("invalid", "Некорректная ссылка", "Проверьте адрес консультации и попробуйте открыть его снова.");
-        return;
-      }
-      if (response.status === 404) {
-        setState("not-found", "Консультация не найдена", "Ссылка недействительна или консультация ещё не опубликована.");
-        return;
-      }
-      if (!response.ok) {
-        throw new Error(`TechRate response ${response.status}`);
-      }
-
-      const payload = await response.json();
-      const consultation = extractConsultation(payload);
-      if (!consultation) {
-        throw new Error("Invalid consultation payload");
-      }
+      const response = await fetch(endpoint.href, { method: "GET", headers: { Accept: "application/json" }, cache: "no-store", referrerPolicy: "no-referrer" });
+      if (response.status === 400) { setState("invalid", "Некорректная ссылка", "Проверьте адрес консультации и попробуйте открыть его снова."); return; }
+      if (response.status === 404) { setState("not-found", "Консультация не найдена", "Ссылка недействительна или консультация ещё не опубликована."); return; }
+      if (!response.ok) throw new Error(`TechRate response ${response.status}`);
+      const consultation = extractConsultation(await response.json());
+      if (!consultation) throw new Error("Invalid consultation payload");
       renderConsultation(consultation);
     } catch (error) {
       console.error("Consultation loading failed", error);
-      setState(
-        "error",
-        "Не удалось загрузить консультацию",
-        "Сервис временно недоступен. Проверьте соединение и попробуйте ещё раз."
-      );
+      setState("error", "Не удалось загрузить консультацию", "Сервис временно недоступен. Проверьте соединение и попробуйте ещё раз.");
     }
   }
 
+  selectorControl.addEventListener("click", () => { const opening = selectorMenu.hidden; selectorMenu.hidden = !opening; selectorControl.setAttribute("aria-expanded", String(opening)); });
+  document.addEventListener("pointerdown", (event) => { if (!$("#model-selector").contains(event.target)) { selectorMenu.hidden = true; selectorControl.setAttribute("aria-expanded", "false"); } });
+  $("#copy-button").addEventListener("click", () => { void copyLink(); });
   retryButton.addEventListener("click", loadConsultation);
   loadConsultation();
 })();

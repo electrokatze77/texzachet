@@ -5,73 +5,92 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="noindex,nofollow,noarchive">
   <meta name="referrer" content="no-referrer">
-  <meta name="theme-color" content="#040000">
+  <meta name="theme-color" content="#060b12">
   <title>Персональная консультация — ТехЗачёт</title>
   <link rel="icon" href="/assets/img/favicon.png">
   <link rel="apple-touch-icon" href="/assets/img/apple-touch-icon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;family=Raleway:wght@600;700;800;900&amp;display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/consultation/consultation.css">
   <script src="/consultation/consultation.js" defer></script>
 </head>
 <body>
-  <header class="site-header">
-    <div class="shell header-inner">
-      <a class="brand" href="/" aria-label="ТехЗачёт — на главную">
-        <img src="/assets/img/11122MAIN (0-00-02-50).png" alt="ТехЗачёт">
-      </a>
-      <span class="header-label">Персональная консультация</span>
-    </div>
-  </header>
-
-  <main class="shell page-main">
-    <section id="status" class="status-card" aria-live="polite" aria-busy="true">
+  <section id="status" class="status-page" aria-live="polite" aria-busy="true">
+    <div class="status-card">
       <div class="loader" aria-hidden="true"></div>
-      <p class="eyebrow">ТехЗачёт</p>
-      <h1 id="status-title">Загружаем вашу консультацию</h1>
+      <p class="status-kicker">ТехЗачёт</p>
+      <h1 id="status-title">Загружаем консультацию</h1>
       <p id="status-message">Собираем рекомендации и результаты тестов.</p>
-      <button id="retry-button" class="retry-button" type="button" hidden>Попробовать снова</button>
-    </section>
-
-    <article id="consultation" class="consultation" hidden>
-      <section class="consultation-hero">
-        <div class="hero-glow" aria-hidden="true"></div>
-        <div class="hero-topline">
-          <span id="tariff" class="tariff-badge"></span>
-          <span class="private-badge">Только по вашей ссылке</span>
-        </div>
-        <p id="client-name" class="eyebrow"></p>
-        <h1 id="consultation-title"></h1>
-        <p id="consultation-intro" class="hero-intro"></p>
-        <dl id="consultation-meta" class="consultation-meta"></dl>
-      </section>
-
-      <section class="models-section" aria-labelledby="models-title">
-        <div class="section-heading">
-          <p class="eyebrow">Результат подбора</p>
-          <h2 id="models-title">Рекомендованные модели</h2>
-        </div>
-        <div id="models-list" class="models-list"></div>
-      </section>
-
-      <section id="conclusion-section" class="conclusion-card" hidden>
-        <p class="eyebrow">Итог эксперта</p>
-        <h2>Вывод</h2>
-        <p id="consultation-conclusion"></p>
-      </section>
-    </article>
-  </main>
-
-  <footer class="site-footer">
-    <div class="shell footer-inner">
-      <span>© ТехЗачёт</span>
-      <div class="footer-links">
-        <a href="/privacy.html">Конфиденциальность</a>
-        <a href="/terms.html">Соглашение</a>
-        <a href="https://t.me/texwizard" target="_blank" rel="noopener noreferrer">Поддержка</a>
-      </div>
+      <button id="retry-button" type="button" hidden>Попробовать снова</button>
     </div>
-  </footer>
+  </section>
+
+  <div id="consultation" class="page" hidden>
+    <header class="sticky-header">
+      <div class="top-bar">
+        <a class="brand" href="/" aria-label="ТехЗачёт — на главную">
+          <img src="/assets/img/11122MAIN%20(0-00-02-50).png" alt="ТехЗачёт">
+        </a>
+        <div class="consultation-meta">
+          <div><strong id="header-title"></strong><span id="tariff-badge" class="tariff-badge"></span></div>
+          <span id="header-subtitle"></span>
+        </div>
+        <button id="copy-button" class="copy-button" type="button"><span aria-hidden="true">⧉</span><span class="copy-label">Скопировать ссылку</span></button>
+      </div>
+      <div class="model-bar">
+        <div id="model-selector" class="selector">
+          <span class="selector-caption">Выберите модель</span>
+          <div class="selector-menu-wrap">
+            <button id="selector-control" class="selector-control" type="button" aria-haspopup="listbox" aria-expanded="false">
+              <span id="selector-label"></span><span class="selector-chevron" aria-hidden="true">⌄</span>
+            </button>
+            <div id="selector-menu" class="selector-menu" role="listbox" aria-label="Выбор модели" hidden></div>
+          </div>
+        </div>
+        <div id="active-role" class="active-role"><span aria-hidden="true">★</span><strong></strong></div>
+      </div>
+    </header>
+
+    <main id="report" class="report">
+      <section class="hero-card" aria-labelledby="model-name">
+        <div class="visual-panel">
+          <div id="rank-badge" class="rank-badge"><strong></strong></div>
+          <div id="image-wrap" class="image-wrap"></div>
+        </div>
+        <div class="product-panel">
+          <h1 id="model-name"></h1>
+          <dl id="specs" class="specs"></dl>
+          <div class="comparison-row">
+            <div class="purchase-block">
+              <div class="price"><span>Цена</span><strong id="model-price">—</strong></div>
+              <div id="purchase-actions" class="purchase-actions"></div>
+              <a class="store-guidance-link" href="#store-guidance">Перед покупкой прочитайте рекомендации по выбору магазина</a>
+            </div>
+            <aside id="score-panel" class="score-panel" aria-label="Оценки модели"></aside>
+          </div>
+          <section id="recommendation-reason" class="recommendation-reason" hidden>
+            <span id="reason-label"></span>
+            <p id="reason-text"></p>
+          </section>
+        </div>
+      </section>
+
+      <section id="insights" class="insights" aria-label="Детальный отчёт по модели"></section>
+      <section id="comparison-sections"></section>
+
+      <section id="store-guidance" class="store-guidance" aria-labelledby="store-guidance-title">
+        <header><span aria-hidden="true">🛡</span><h2 id="store-guidance-title">Важно при выборе магазина</h2></header>
+        <ul>
+          <li>Выбирайте продавца с гарантией не меньше 12 месяцев и понятными условиями возврата.</li>
+          <li>Сверяйте точную конфигурацию: процессор, видеокарту, экран и объём памяти могут отличаться от карточки товара.</li>
+          <li>До оплаты уточните реальный срок доставки, наличие и состояние устройства.</li>
+          <li>После получения проверьте серийный номер, комплектацию и работу ноутбука в срок возврата.</li>
+        </ul>
+      </section>
+
+      <footer id="final" class="final" hidden><span>Итог консультации</span><p id="consultation-conclusion"></p></footer>
+    </main>
+  </div>
 </body>
 </html>
