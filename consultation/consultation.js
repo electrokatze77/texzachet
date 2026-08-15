@@ -392,7 +392,7 @@
 
     const actions = $("#purchase-actions");
     actions.replaceChildren();
-    const mainLink = externalLink(productUrl, "Сравнить цены", "primary-action");
+    const mainLink = externalLink(productUrl, "Купить можно здесь", "primary-action");
     actions.append(mainLink || element("span", "disabled-action", "Цены недоступны"));
     const secondary = extraLinks(item).map((link) => externalLink(link.url, link.label, "secondary-action")).find(Boolean);
     if (secondary) actions.append(secondary);
