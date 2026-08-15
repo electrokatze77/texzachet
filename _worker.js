@@ -700,7 +700,7 @@ export default {
     }
 
     if (isConsultationPath(pathname)) {
-      const consultationUrl = new URL("/consultation/index.html", request.url);
+      const consultationUrl = new URL("/consultation/", request.url);
       return env.ASSETS.fetch(new Request(consultationUrl, request));
     }
 
