@@ -451,6 +451,7 @@
     tab.addEventListener("click", (event) => {
       event.stopPropagation();
       row.setAttribute("aria-expanded", "true");
+      content.hidden = false;
       row.querySelectorAll(".comparison-tabs button").forEach((button) => button.setAttribute("aria-selected", "false"));
       tab.setAttribute("aria-selected", "true");
       content.dataset.section = key;
