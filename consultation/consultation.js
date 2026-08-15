@@ -100,7 +100,7 @@
   }
 
   function listLines(value) {
-    const raw = Array.isArray(value) ? value : text(value).split(/\r?\n|(?=\s*[•▪●◦✓✕×]\s+)/);
+    const raw = Array.isArray(value) ? value : text(value).split(/\r?\n|(?=^\s*[•▪●◦✓✕×]\s+)/m);
     return raw.map((line) => text(line).replace(/^[\s•▪●◦*\-–—✓✕×]+/, "").trim()).filter(Boolean);
   }
 
