@@ -104,6 +104,87 @@
     return raw.map((line) => text(line).replace(/^[\s•▪●◦*\-–—✓✕×]+/, "").trim()).filter(Boolean);
   }
 
+  function smartLines(raw, temperature = false) {
+    const bullets = temperature ? /\s*[\u2022\u25cf\u25aa]\s*(?=[\p{L}])/gu : /\s*[\u2022\u25cf\u25aa]\s*/gu;
+    return text(raw).replace(/\r/g, "").replace(bullets, "\n").split("\n")
+      .map((line) => line.replace(/^\s*[-–—]\s*/, "").trim()).filter(Boolean);
+  }
+
+  const TEMP_VALUE = String.raw`~?\d{2,3}(?:[.,]\d+)?(?:\s*[-–—]\s*~?\d{2,3}(?:[.,]\d+)?)?\s*(?:[\u00b0\u00ba]\s*)?[C\u0421]\b(?:\s*(?:avg|average|max|maximum))?`;
+  const NOISE_VALUE = String.raw`~?\d{1,3}(?:[.,]\d+)?(?:\s*(?:avg|average|max|maximum))?(?:\s*[/•·–—]\s*~?\d{1,3}(?:[.,]\d+)?)*\s*(?:dB(?:\s*\(?A\)?)?|\u0434\u0411\u0410?)`;
+
+  function highestNumber(value) {
+    const values = [...String(value).matchAll(/\d+(?:[.,]\d+)?/g)].map((match) => Number(match[0].replace(",", ".")));
+    return values.length ? Math.max(...values) : null;
+  }
+
+  function temperatureKind(context) {
+    const patterns = [
+      ["surface", /surface|chassis|keyboard|palm\s*rest|\u043a\u043e\u0440\u043f\u0443\u0441|\u043a\u043b\u0430\u0432\u0438\u0430\u0442\u0443\u0440|\u043f\u043e\u0432\u0435\u0440\u0445/giu],
+      ["vram", /vram|gpu\s*(?:memory|mem)|video\s*memory|\u0432\u0438\u0434\u0435\u043e\u043f\u0430\u043c/giu],
+      ["gpu", /\bgpu\b|\u0432\u0438\u0434\u0435\u043e\u043a\u0430\u0440\u0442/giu],
+      ["cpu", /\bcpu\b|\u043f\u0440\u043e\u0446\u0435\u0441\u0441\u043e\u0440/giu],
+    ];
+    let latest = null;
+    patterns.forEach(([kind, pattern]) => { for (const match of context.matchAll(pattern)) {
+      const index = match.index ?? -1; if (!latest || index > latest.index) latest = { kind, index };
+    }});
+    if (latest) return latest.kind;
+    return /prime95|cinebench|cyberpunk|furmark/iu.test(context) ? "cpu" : null;
+  }
+
+  function metricStatus(kind, value) {
+    const maximum = highestNumber(value); if (maximum === null) return "neutral";
+    if (kind === "noise") return maximum <= 40 ? "good" : maximum <= 48 ? "warning" : "bad";
+    if (kind === "surface") return maximum <= 42 ? "good" : maximum <= 48 ? "warning" : "bad";
+    if (kind === "vram") return maximum <= 80 ? "good" : maximum <= 90 ? "warning" : "bad";
+    if (kind === "gpu") return maximum <= 75 ? "good" : maximum <= 82 ? "warning" : "bad";
+    return maximum <= 80 ? "good" : maximum <= 89 ? "warning" : "bad";
+  }
+
+  function metricFragments(label, value) {
+    const source = String(value); const matches = [];
+    for (const match of source.matchAll(new RegExp(`${TEMP_VALUE}(?:\\s*[/•·]\\s*${TEMP_VALUE})*`, "giu"))) {
+      const start = match.index ?? 0; const kind = temperatureKind(`${label} ${source.slice(Math.max(0, start - 100), start)}`);
+      matches.push({ start, end: start + match[0].length, status: kind ? metricStatus(kind, match[0]) : "neutral" });
+    }
+    for (const match of source.matchAll(new RegExp(NOISE_VALUE, "giu"))) {
+      const start = match.index ?? 0; matches.push({ start, end: start + match[0].length, status: metricStatus("noise", match[0]) });
+    }
+    matches.sort((a, b) => a.start - b.start); const fragments = []; let cursor = 0;
+    matches.forEach((match) => { if (match.start < cursor) return; if (match.start > cursor) fragments.push({ text: source.slice(cursor, match.start), status: "neutral" }); fragments.push({ text: source.slice(match.start, match.end), status: match.status }); cursor = match.end; });
+    if (cursor < source.length) fragments.push({ text: source.slice(cursor), status: "neutral" });
+    const evaluated = fragments.filter((fragment) => fragment.status !== "neutral");
+    return { fragments: fragments.length ? fragments : undefined, status: evaluated.length === 1 ? evaluated[0].status : "neutral" };
+  }
+
+  function parseTemperatureSection(raw) {
+    const source = text(raw); if (!/[\u00b0\u00ba]\s*[C\u0421]|\b\d{2,3}\s*[C\u0421]\b|\bdBA?\b|noise|\u0448\u0443\u043c|thrott/iu.test(source)) return null;
+    const items = [], notes = []; const temperaturePattern = new RegExp(TEMP_VALUE, "giu"); const noisePattern = new RegExp(NOISE_VALUE, "giu");
+    smartLines(source, true).forEach((line) => {
+      const temperatures = [...line.matchAll(temperaturePattern)]; const noises = [...line.matchAll(noisePattern)];
+      const simple = line.match(/^\s*(CPU|GPU|VRAM|SSD|SoC|\u043f\u0440\u043e\u0446\u0435\u0441\u0441\u043e\u0440|\u0432\u0438\u0434\u0435\u043e\u043a\u0430\u0440\u0442|\u0448\u0443\u043c|noise)\s*[:–—-]?\s*(.+)$/iu);
+      const throttle = line.match(/^\s*(throttling|\u0442\u0440\u043e\u0442\u0442\u043b\u0438\u043d\u0433)\s*[:–—-]?\s*(.+)$/iu);
+      if (simple && (temperatures.length || noises.length)) { const aliases = { процессор: "CPU", видеокарта: "GPU", шум: "Шум" }; const label = aliases[simple[1].toLowerCase()] || simple[1]; const value = simple[2].trim(); items.push({ label, value, ...metricFragments(label, value) }); return; }
+      if (throttle) { items.push({ label: "Троттлинг", value: throttle[2].trim(), status: "neutral" }); return; }
+      const measurements = [...temperatures, ...noises]; if (!measurements.length) { notes.push(line); return; }
+      const separated = line.match(/^(.{2,70}?)(?::|–|—)\s*(.+)$/); const first = measurements.map((match) => match.index ?? Infinity).sort((a, b) => a - b)[0];
+      const label = (separated?.[1] || line.slice(0, first).trim() || "Температура").trim(); const value = separated?.[2]?.trim() || line.slice(first).trim();
+      items.push({ label, value, ...metricFragments(label, value) });
+    });
+    const unique = []; const seen = new Set(); items.forEach((item) => { const key = `${item.label.toLowerCase()}|${item.value.toLowerCase()}`; if (!seen.has(key)) { seen.add(key); unique.push(item); } });
+    return unique.length ? { items: unique, notes } : null;
+  }
+
+  function parseFpsSection(raw) {
+    const source = text(raw); const matrixSignal = /\b(?:WUXGA|WQXGA|FHD\+?|QHD|UHD|4K|\d{3,4}\s*[x×]\s*\d{3,4})\b[^\n]{0,24}\d+(?:[.,]\d+)?\s*\/\s*\d+/i;
+    if (!/\bFPS\b|frames?\s*(?:per|\/)?\s*second|\u043a\u0430\u0434\u0440\w*\s*(?:\/|\u0437\u0430)\s*\u0441/iu.test(source) && !matrixSignal.test(source)) return null;
+    const games = [], notes = []; const resolution = source.match(/\b(?:FHD|QHD|UHD|4K|1080p|1200p|1440p|1600p|2160p|\d{3,4}\s*[x×]\s*\d{3,4})\b/i)?.[0];
+    const matrix = /\b(WUXGA|WQXGA|FHD\+?|QHD|UHD|4K|\d{3,4}\s*[x×]\s*\d{3,4})\b\s*[:–—-]?\s*(~?\d+(?:[.,]\d+)?(?:\s*\/\s*~?\d+(?:[.,]\d+)?)*)/giu; const fps = /(~?\d+(?:[.,]\d+)?(?:\s*(?:\/|[–—-])\s*~?\d+(?:[.,]\d+)?)*\+?)\s*FPS\b/giu;
+    smartLines(source).forEach((line) => { const matrixMatches = [...line.matchAll(matrix)]; if (matrixMatches.length) { const name = line.slice(0, matrixMatches[0].index).replace(/^[\s,;:–—]+|[,;:–—]+$/g, "").trim(); if (!name) { notes.push(line); return; } const results = matrixMatches.map((match) => ({ label: match[1].toUpperCase(), value: match[2].replace(/\s+/g, " ").trim() })); games.push({ name, fps: results.map((result) => result.value).join(" | "), results }); return; } const found = [...line.matchAll(fps)]; if (!found.length) { notes.push(line); return; } const first = found[0].index ?? 0; const name = line.slice(0, first).replace(/\([^)]*(?:FHD|QHD|UHD|4K)[^)]*\).*$/i, "").replace(/^[\s,;:–—]+|[,;:–—]+$/g, "").trim(); if (!name) { notes.push(line); return; } const values = found.map((match) => match[1].replace(/\s+/g, " ").trim()); games.push({ name, fps: values.join(" · ") }); });
+    const unique = []; const seen = new Set(); games.forEach((game) => { const key = `${game.name.toLowerCase()}|${game.fps}`; if (!seen.has(key)) { seen.add(key); unique.push(game); } }); return unique.length ? { resolution, games: unique, notes } : null;
+  }
+
   function setState(type, title, message) {
     status.hidden = false;
     consultationView.hidden = true;
@@ -115,22 +196,30 @@
     retryButton.hidden = type !== "error";
   }
 
+  function scoreNumber(value) {
+    const number = Number(String(value ?? "").replace(",", "."));
+    return Number.isFinite(number) ? number : null;
+  }
+
   function scoreColor(value) {
-    const number = Number(value);
-    if (!Number.isFinite(number)) return "#697387";
-    if (number >= 8) return "#48ce91";
-    if (number >= 6) return "#5799ed";
-    if (number >= 4) return "#f1a044";
-    return "#f05a68";
+    const number = scoreNumber(value);
+    if (number === null) return "#697387";
+    if (number >= 9.4) return "#ec3838";
+    if (number >= 9) return "#e738e3";
+    if (number >= 8.6) return "#a33eea";
+    if (number >= 8) return "#4a86e8";
+    if (number >= 7.5) return "#57ba8a";
+    if (number >= 7) return "#7ead6a";
+    return "#b45f06";
   }
 
   function scoreNode(label, value, table) {
-    const numeric = Number(value);
-    const valid = hasValue(value) && Number.isFinite(numeric);
+    const numeric = scoreNumber(value);
+    const valid = numeric !== null;
     const normalized = valid ? Math.min(10, Math.max(0, numeric)) : 0;
     const ring = element("span", table ? "table-score" : "score-ring");
-    ring.style.setProperty("--score-color", scoreColor(value));
-    ring.style.setProperty("--score-progress", `${normalized * 10}%`);
+    ring.style.setProperty(table ? "--table-score-color" : "--score-color", scoreColor(value));
+    ring.style.setProperty(table ? "--table-score-progress" : "--score-progress", `${normalized * 10}%`);
     ring.append(element("strong", "", valid ? normalized.toFixed(1) : "—"));
     if (!table) {
       const card = element("div", "score-card");
@@ -186,7 +275,12 @@
       option.type = "button";
       option.setAttribute("role", "option");
       option.setAttribute("aria-selected", String(index === activeIndex));
-      option.addEventListener("click", () => { activeIndex = index; selectorMenu.hidden = true; selectorControl.setAttribute("aria-expanded", "false"); renderActive(); });
+      option.addEventListener("click", () => {
+        activeIndex = index;
+        selectorMenu.hidden = true;
+        selectorControl.setAttribute("aria-expanded", "false");
+        renderActive(true);
+      });
       selectorMenu.append(option);
     });
   }
@@ -197,7 +291,7 @@
     container.append(row);
   }
 
-  function addInsight(container, title, icon, tone, value) {
+  function addPlainInsight(container, title, icon, tone, value) {
     const lines = listLines(value);
     if (!lines.length) return;
     const card = element("article", "insight-card");
@@ -226,7 +320,43 @@
     container.append(image);
   }
 
-  function renderActive() {
+  function appendSectionNotes(card, notes) {
+    if (!notes.length) return;
+    const section = element("div", "section-notes"); notes.forEach((note) => section.append(element("p", "", note))); card.append(section);
+  }
+
+  function addSmartInsight(container, title, icon, tone, value, kind) {
+    const section = kind === "temperature" ? parseTemperatureSection(value) : parseFpsSection(value);
+    if (!section) { addPlainInsight(container, title, icon, tone, value); return; }
+    const card = element("article", "insight-card"); card.dataset.tone = tone;
+    const header = element("header"); header.append(element("span", "", icon), element("h2", "", kind === "fps" && section.resolution ? `${title} · ${section.resolution}` : title)); card.append(header);
+    const list = element("div", kind === "temperature" ? "metric-list" : "fps-list");
+    if (kind === "temperature") section.items.forEach((item) => {
+      const row = element("div", "metric-row temperature-metric-row"); row.dataset.status = item.status;
+      row.append(element("span", "", item.label)); const strong = element("strong");
+      if (item.fragments?.length) item.fragments.forEach((fragment) => { const part = element("span", "temperature-metric-fragment", fragment.text); part.dataset.status = fragment.status; strong.append(part); }); else strong.textContent = item.value;
+      row.append(strong); const indicator = element("i"); indicator.className = item.status; row.append(indicator); list.append(row);
+    });
+    if (kind === "fps") section.games.forEach((game) => { const row = element("div", "fps-row"); row.append(element("span", "", game.name)); if (game.results?.length) { const results = element("div", "fps-results"); game.results.forEach((result) => { const part = element("span"); part.append(element("small", "", result.label), element("strong", "", result.value)); results.append(part); }); row.append(results); } else row.append(element("strong", "", `${game.fps} FPS`)); list.append(row); });
+    card.append(list); appendSectionNotes(card, section.notes); container.append(card);
+  }
+
+  function addInsight(container, title, icon, tone, value) {
+    if (tone === "temperature") return addSmartInsight(container, title, icon, tone, value, "temperature");
+    if (tone === "fps") return addSmartInsight(container, title, icon, tone, value, "fps");
+    return addPlainInsight(container, title, icon, tone, value);
+  }
+
+  function scrollToActiveModel() {
+    const hero = document.querySelector(".hero-card");
+    if (!hero) return;
+    const stickyHeader = document.querySelector(".sticky-header");
+    const headerHeight = stickyHeader ? stickyHeader.getBoundingClientRect().height : 0;
+    const top = Math.max(0, window.scrollY + hero.getBoundingClientRect().top - headerHeight - 12);
+    window.scrollTo({ top, behavior: "smooth" });
+  }
+
+  function renderActive(shouldScroll = false) {
     const view = views[activeIndex];
     if (!view) return;
     const { item, model, overrides, role } = view;
@@ -290,6 +420,7 @@
       addInsight(insights, "FPS", "⌁", "fps", details.fps);
     }
     if (!insights.childElementCount) insights.append(element("p", "empty-detail", "Для этой модели нет дополнительных данных в опубликованной консультации."));
+    if (shouldScroll) window.requestAnimationFrame(scrollToActiveModel);
   }
 
   function detailTab(row, title, icon, key, raw, tone) {
@@ -304,6 +435,14 @@
       tab.setAttribute("aria-selected", "true");
       content.dataset.section = key;
       content.replaceChildren(element("h3", "", `${icon} ${title}`));
+      if (key === "temperatures" || key === "fps") {
+        const host = element("div");
+        addSmartInsight(host, title, icon, tone === "#f1a044" ? "temperature" : "fps", raw, key === "temperatures" ? "temperature" : "fps");
+        const card = host.firstElementChild;
+        if (card) Array.from(card.children).slice(1).forEach((child) => content.append(child));
+        content.style.setProperty("--detail-color", tone);
+        return;
+      }
       const lines = key === "conclusion" ? [] : listLines(raw);
       if (key === "conclusion") content.append(element("p", "", text(raw) || "Нет отдельного вывода."));
       else if (lines.length) { const list = element("ul", "detail-list"); lines.forEach((line) => list.append(element("li", "", line))); content.append(list); }
