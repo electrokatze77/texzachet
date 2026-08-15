@@ -313,7 +313,7 @@ body { font-size: 17px; }
 }
 
 /* Keep the report cards visible while retaining the subtle TechZachet separators. */
-.insight-card { border: 0; border-right: 1px solid rgb(255 255 255 / 9%); border-radius: 0; background: transparent; }
+.insight-card { border: 1px solid color-mix(in srgb, var(--card-accent) 34%, rgb(156 107 242 / 25%)); border-radius: 8px; background: radial-gradient(circle at 16% 0%, color-mix(in srgb, var(--card-accent) 10%, transparent), transparent 20rem), #191919; }
 .comparison-details { background: #191919; }
 
 /* Keep comparison headings readable and keep the accordion controls visible. */
