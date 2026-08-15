@@ -138,7 +138,7 @@
     if (kind === "noise") return maximum <= 40 ? "good" : maximum <= 48 ? "warning" : "bad";
     if (kind === "surface") return maximum <= 42 ? "good" : maximum <= 48 ? "warning" : "bad";
     if (kind === "vram") return maximum <= 80 ? "good" : maximum <= 90 ? "warning" : "bad";
-    if (kind === "gpu") return maximum <= 75 ? "good" : maximum <= 82 ? "warning" : "bad";
+    if (kind === "gpu") return maximum <= 75 ? "good" : maximum <= 85 ? "warning" : "bad";
     return maximum <= 80 ? "good" : maximum <= 89 ? "warning" : "bad";
   }
 
@@ -443,8 +443,7 @@
     if (shouldScroll) window.requestAnimationFrame(scrollToActiveModel);
   }
 
-  function detailTab(row, title, icon, key, raw, tone) {
-    const content = row.querySelector(".comparison-detail-content");
+  function detailTab(row, content, title, icon, key, raw, tone) {
     const tab = element("button", "", `${icon} ${title}`);
     tab.type = "button";
     tab.dataset.section = key;
@@ -520,7 +519,7 @@
     const content = element("div", "comparison-detail-content"); content.hidden = true;
     const conclusion = text(item.customConclusion) || (role === "anti" ? text(model.notes) || text(effective(model, overrides, "cons")) : text(model.notes));
     const allTabs = [["Вывод", "?", "conclusion", conclusion, "#66a0ff"], ["Плюсы", "✓", "pros", effective(model, overrides, "pros"), "#48ce91"], ["Минусы", "×", "cons", effective(model, overrides, "cons"), "#f05a68"], ["Температуры и шум", "♨", "temperatures", effective(model, overrides, "temperaturesAndNoise"), "#f1a044"], ["FPS", "⌁", "fps", effective(model, overrides, "fps"), "#5799ed"]];
-    allTabs.filter((tab) => role !== "anti" || tab[2] === "conclusion" || tab[2] === "cons").filter((tab) => text(tab[3])).forEach((tab) => tabs.append(detailTab(row, tab[0], tab[1], tab[2], tab[3], tab[4])));
+    allTabs.filter((tab) => role !== "anti" || tab[2] === "conclusion" || tab[2] === "cons").filter((tab) => text(tab[3])).forEach((tab) => tabs.append(detailTab(row, content, tab[0], tab[1], tab[2], tab[3], tab[4])));
     if (tabs.childElementCount) { details.append(tabs, content); row.append(details); }
     const toggle = () => { if (!tabs.childElementCount) return; const open = row.getAttribute("aria-expanded") === "true"; row.setAttribute("aria-expanded", String(!open)); content.hidden = open; if (!open && !content.childElementCount) tabs.querySelector("button").click(); };
     row.addEventListener("click", (event) => { if (event.target.closest("a, button")) return; toggle(); });
