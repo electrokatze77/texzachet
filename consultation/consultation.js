@@ -302,6 +302,22 @@
     lines.forEach((line) => list.append(element("li", "", line)));
     card.append(header, list);
     container.append(card);
+    setupMoreControl(card, list);
+  }
+
+  function setupMoreControl(card, content) {
+    content.classList.add("expandable-content");
+    const button = element("button", "more-button", "Больше");
+    button.type = "button";
+    button.hidden = true;
+    button.addEventListener("click", () => {
+      const expanded = card.classList.toggle("is-expanded");
+      button.textContent = expanded ? "Свернуть" : "Больше";
+    });
+    card.append(button);
+    window.requestAnimationFrame(() => {
+      button.hidden = content.scrollHeight <= content.clientHeight + 4;
+    });
   }
 
   function renderImage(container, value, name) {
@@ -338,7 +354,7 @@
       row.append(strong); const indicator = element("i"); indicator.className = item.status; row.append(indicator); list.append(row);
     });
     if (kind === "fps") section.games.forEach((game) => { const row = element("div", "fps-row"); row.append(element("span", "", game.name)); if (game.results?.length) { const results = element("div", "fps-results"); game.results.forEach((result) => { const part = element("span"); part.append(element("small", "", result.label), element("strong", "", result.value)); results.append(part); }); row.append(results); } else row.append(element("strong", "", `${game.fps} FPS`)); list.append(row); });
-    card.append(list); appendSectionNotes(card, section.notes); container.append(card);
+    card.append(list); appendSectionNotes(card, section.notes); container.append(card); setupMoreControl(card, list);
   }
 
   function addInsight(container, title, icon, tone, value) {
@@ -420,6 +436,8 @@
       addInsight(insights, "FPS", "⌁", "fps", details.fps);
     }
     if (!insights.childElementCount) insights.append(element("p", "empty-detail", "Для этой модели нет дополнительных данных в опубликованной консультации."));
+    const conclusionsButton = $("#conclusions-button");
+    if (conclusionsButton) conclusionsButton.hidden = !insights.childElementCount;
     if (shouldScroll) window.requestAnimationFrame(scrollToActiveModel);
   }
 
@@ -585,6 +603,9 @@
   selectorControl.addEventListener("click", () => { const opening = selectorMenu.hidden; selectorMenu.hidden = !opening; selectorControl.setAttribute("aria-expanded", String(opening)); });
   document.addEventListener("pointerdown", (event) => { if (!$("#model-selector").contains(event.target)) { selectorMenu.hidden = true; selectorControl.setAttribute("aria-expanded", "false"); } });
   $("#copy-button").addEventListener("click", () => { void copyLink(); });
+  $("#conclusions-button").addEventListener("click", () => {
+    $("#insights").scrollIntoView({ behavior: "smooth", block: "start" });
+  });
   retryButton.addEventListener("click", loadConsultation);
   loadConsultation();
 })();
