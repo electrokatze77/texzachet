@@ -2505,6 +2505,7 @@ font-size: 39px;
   aspect-ratio: 16 / 9;
   background: #050505;
   object-fit: contain;
+  transform: scale(1.12);
 }
 
 .recommendations-phone {
