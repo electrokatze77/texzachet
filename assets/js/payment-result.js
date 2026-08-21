@@ -11,6 +11,7 @@
   const summary = card.querySelector("[data-result-summary]");
   const icon = card.querySelector("[data-result-icon]");
   const supportLink = card.querySelector("[data-result-support-link]");
+  const emailFallback = card.querySelector("[data-result-email-fallback]");
   const params = new URLSearchParams(window.location.search);
   const orderId = params.get("order") || "";
   const token = params.get("token") || "";
@@ -55,6 +56,9 @@
 
     if (supportLink) {
       supportLink.hidden = status !== "CONFIRMED";
+    }
+    if (emailFallback) {
+      emailFallback.hidden = status !== "CONFIRMED";
     }
 
     if (payment && payment.plan) {

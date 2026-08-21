@@ -291,6 +291,20 @@
   transform: none;
 }
 
+.payment-result-email {
+  margin: -4px 0 0;
+  color: #626271;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.payment-result-email a {
+  color: #6449cb;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
 .payment-result-spinner {
   animation: payment-spin 1s linear infinite;
 }
