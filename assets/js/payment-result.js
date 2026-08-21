@@ -10,6 +10,7 @@
   const message = card.querySelector("[data-result-message]");
   const summary = card.querySelector("[data-result-summary]");
   const icon = card.querySelector("[data-result-icon]");
+  const supportLink = card.querySelector("[data-result-support-link]");
   const params = new URLSearchParams(window.location.search);
   const orderId = params.get("order") || "";
   const token = params.get("token") || "";
@@ -29,7 +30,7 @@
       state: "confirmed",
       icon: "bi-check-lg",
       title: "Оплата подтверждена",
-      message: "Спасибо! Платёж успешно получен. Мы свяжемся с вами для выполнения заказа."
+      message: "Спасибо, что воспользовались услугой. Теперь кратко напишите мне свой бюджет и требования."
     },
     CANCELED: {
       state: "canceled",
@@ -51,6 +52,10 @@
     title.textContent = current.title;
     message.textContent = current.message;
     icon.className = `bi ${current.icon}`;
+
+    if (supportLink) {
+      supportLink.hidden = status !== "CONFIRMED";
+    }
 
     if (payment && payment.plan) {
       summary.textContent = `${payment.plan} · ${payment.amount} ${payment.currency}`;
