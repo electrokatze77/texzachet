@@ -248,6 +248,11 @@
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
+.payment-result-action[hidden],
+.payment-result-email[hidden] {
+  display: none;
+}
+
 .payment-result-action:hover {
   color: #fff;
   transform: translateY(-1px);
