@@ -150,6 +150,7 @@
 
 .payment-result-page {
   min-height: 100vh;
+  font-family: Arial, "Helvetica Neue", sans-serif;
   background:
     radial-gradient(circle at 50% 10%, rgba(100, 73, 203, 0.13), transparent 36rem),
     #f8f8fb;
@@ -201,6 +202,9 @@
   color: #20202b;
   font-size: clamp(28px, 5vw, 42px);
   font-weight: 800;
+  font-family: Arial, "Helvetica Neue", sans-serif;
+  line-height: 1.2;
+  padding: 2px 4px;
 }
 
 .payment-result-card p {
@@ -221,9 +225,10 @@
 
 .payment-result-actions {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
+  align-items: center;
   justify-content: center;
-  gap: 12px;
+  gap: 14px;
   margin-top: 28px;
 }
 
@@ -238,6 +243,7 @@
   background: #6449cb;
   color: #fff;
   font-weight: 700;
+  line-height: 1.35;
   text-decoration: none;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
@@ -248,13 +254,40 @@
   box-shadow: 0 10px 26px rgba(100, 73, 203, 0.22);
 }
 
-.payment-result-action.is-secondary {
-  background: transparent;
-  color: #6449cb;
+.payment-result-action.is-telegram {
+  width: min(100%, 380px);
+  min-height: 66px;
+  border: 0;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #6f54e5, #5134c3);
+  box-shadow: 0 12px 28px rgba(100, 73, 203, 0.34);
+  font-size: clamp(18px, 3vw, 21px);
+  animation: payment-telegram-pulse 1.8s ease-in-out infinite;
 }
 
-.payment-result-action.is-secondary:hover {
-  color: #4f36b0;
+.payment-result-action.is-telegram:hover {
+  color: #fff;
+  animation-play-state: paused;
+  transform: translateY(-3px) scale(1.02);
+}
+
+.payment-result-action.is-home {
+  min-height: 32px;
+  padding: 6px 12px;
+  border-color: transparent;
+  border-radius: 8px;
+  background: #fff;
+  color: #4e4e5a;
+  box-shadow: none;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.payment-result-action.is-home:hover {
+  color: #24242d;
+  background: #f4f3f8;
+  box-shadow: none;
+  transform: none;
 }
 
 .payment-result-spinner {
@@ -264,5 +297,20 @@
 @keyframes payment-spin {
   to {
     transform: rotate(360deg);
+  }
+}
+
+@keyframes payment-telegram-pulse {
+  0%, 100% {
+    box-shadow: 0 12px 28px rgba(100, 73, 203, 0.34);
+  }
+  50% {
+    box-shadow: 0 16px 38px rgba(100, 73, 203, 0.56), 0 0 0 7px rgba(100, 73, 203, 0.1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .payment-result-action.is-telegram {
+    animation: none;
   }
 }
