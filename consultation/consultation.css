@@ -404,6 +404,13 @@ body { font-size:16px; }
   .image-wrap img { max-height:290px; }
 }
 
+/* Keep the primary recommendation halo present but visually restrained. */
+body .hero-card[data-role="recommendation"] .visual-panel::before { background:radial-gradient(ellipse,rgb(125 70 226 / 28%),transparent 70%); opacity:.72; }
+body .hero-card[data-role="recommendation"] .image-wrap::before { background:radial-gradient(ellipse,rgb(140 76 236 / 34%),transparent 74%); opacity:.68; }
+body .hero-card[data-role="recommendation"] .visual-panel::before,
+body .hero-card[data-role="recommendation"] .image-wrap::before { animation:consultation-primary-glow-soft 9s ease-in-out infinite !important; }
+@keyframes consultation-primary-glow-soft { 0%,100% { opacity:.5; transform:scale(.94); } 50% { opacity:.78; transform:scale(1); } }
+
 /* Higher-specificity mobile halo overrides keep the glow visible above legacy rules. */
 body .visual-panel::before { right:-8%; bottom:-6%; left:-8%; height:54%; background:radial-gradient(ellipse,rgb(145 76 248 / 52%),transparent 70%); filter:blur(18px); }
 body .image-wrap::before { right:-6%; bottom:-9%; left:-6%; height:34%; background:radial-gradient(ellipse,rgb(159 86 255 / 70%) 0%,rgb(111 53 218 / 40%) 42%,transparent 76%); filter:blur(24px); }
