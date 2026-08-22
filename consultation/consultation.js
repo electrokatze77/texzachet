@@ -517,7 +517,13 @@
     nameCell.append(nameWrap); row.append(nameCell);
     const gpuCell = cell(); const gpu = element("span", "comparison-gpu", text(effective(model, overrides, "gpu")) || "—"); gpu.style.setProperty("--gpu-color", gpuColor(gpu.textContent)); gpuCell.append(gpu); row.append(gpuCell);
     const cpuCell = cell(); cpuCell.textContent = text(effective(model, overrides, "cpu")) || "—"; row.append(cpuCell);
-    const memory = cell(); const memoryWrap = element("span", "ram-storage"); memoryWrap.append(element("span", "", text(effective(model, overrides, "ram")) || "—"), element("small", "", text(effective(model, overrides, "storage")) || "—")); memory.append(memoryWrap); row.append(memory);
+    const memory = cell(); const memoryWrap = element("span", "ram-storage");
+    const ramValue = text(effective(model, overrides, "ram")) || "—";
+    const storageValue = text(effective(model, overrides, "storage")) || "—";
+    const capacityMatch = storageValue.match(/\d+(?:[.,]\d+)?\s*(?:ГБ|GB|ТБ|TB)/i);
+    const storageCapacity = capacityMatch ? capacityMatch[0] : "";
+    const storageLabel = storageCapacity ? storageValue.replace(capacityMatch[0], "").replace(/[,:;]+/g, "").trim() : storageValue;
+    memoryWrap.append(element("span", "", `${ramValue} ОЗУ`), element("small", "", storageCapacity ? `${storageCapacity} ${storageLabel}` : storageLabel)); memory.append(memoryWrap); row.append(memory);
     const displayCell = cell(); displayCell.textContent = text(effective(model, overrides, "display")) || "—"; row.append(displayCell);
     const priceCell = cell("comparison-price"); const priceLink = externalLink(productUrl, price, ""); priceCell.append(priceLink || document.createTextNode(price)); row.append(priceCell);
     [["Игры", "gamingScore"], ["Работа", "workScore"], ["Контент", "contentScore"], ["Стабильность", "stabilityScore"]].forEach(([label, key]) => { const scoreCell = cell(); scoreCell.append(scoreNode(label, effective(model, overrides, key), true)); row.append(scoreCell); });
