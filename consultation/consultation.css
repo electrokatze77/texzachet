@@ -511,6 +511,17 @@ body .hero-reveal .image-wrap::before { animation:consultation-ground-glow-visib
   .hero-reveal .image-wrap { animation:none; }
 }
 
+/* Keep the mobile palette aligned with desktop while preserving the compact layout. */
+@media (max-width:820px) {
+  body .hero-card[data-role="recommendation"] {
+    background:radial-gradient(ellipse 37% 48% at 22% 76%,rgb(104 52 203 / 22%),transparent 74%),linear-gradient(180deg,#0b0f18 0%,#0b0f18 58%,#110e20 100%);
+  }
+  body .hero-card[data-role="recommendation"] .visual-panel { background:transparent; }
+  body .comparison-list { background:linear-gradient(135deg,#10141e,#090d15); }
+  body .comparison-row-card { background:transparent; }
+  body .comparison-row-card:first-of-type { background:radial-gradient(ellipse 42% 120% at 18% 48%,rgb(107 57 194 / 19%),transparent 72%),linear-gradient(90deg,rgb(91 48 161 / 10%),transparent 48%); }
+}
+
 @media (max-width:820px) {
   .visual-panel { background:radial-gradient(ellipse 100% 52% at 50% 78%,rgb(112 57 226 / 32%),transparent 72%),linear-gradient(180deg,#0b0f18 0%,#0a0d15 62%,#100c20 100%); }
   .visual-panel::before { right:-12%; bottom:-4%; left:-12%; height:58%; background:radial-gradient(ellipse,rgb(145 76 248 / 48%),transparent 70%); filter:blur(16px); }
