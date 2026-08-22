@@ -392,6 +392,8 @@
     activeRole.dataset.role = role;
     activeRole.querySelector("span").textContent = ROLE[role].mark;
     activeRole.querySelector("strong").textContent = roleDescription(item);
+    const hero = document.querySelector(".hero-card");
+    if (hero) hero.dataset.role = role;
     const rank = $("#rank-badge");
     rank.dataset.role = role;
     rank.querySelector("strong").textContent = ROLE[role].position || text(item.rank) || "—";
@@ -441,7 +443,6 @@
       addInsight(insights, "FPS", "⌁", "fps", details.fps);
     }
     if (!insights.childElementCount) insights.append(element("p", "empty-detail", "Для этой модели нет дополнительных данных в опубликованной консультации."));
-    const hero = document.querySelector(".hero-card");
     if (hero) {
       hero.classList.remove("hero-reveal");
       void hero.offsetWidth;
