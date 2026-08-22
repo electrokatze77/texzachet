@@ -513,7 +513,7 @@
     const cell = (className) => element("div", `comparison-cell${className ? ` ${className}` : ""}`);
     const positionCell = cell(); positionCell.append(element("span", "position-badge", position)); row.append(positionCell);
     const nameCell = cell(); const nameWrap = element("div", "comparison-name"); nameWrap.append(element("strong", "", name));
-    if (role !== "recommendation" || Number(item.rank) !== 1) nameWrap.append(element("span", "role-small", roleDescription(item)));
+    nameWrap.append(element("span", "role-small", roleDescription(item)));
     nameCell.append(nameWrap); row.append(nameCell);
     const gpuCell = cell(); const gpu = element("span", "comparison-gpu", text(effective(model, overrides, "gpu")) || "—"); gpu.style.setProperty("--gpu-color", gpuColor(gpu.textContent)); gpuCell.append(gpu); row.append(gpuCell);
     const cpuCell = cell(); cpuCell.textContent = text(effective(model, overrides, "cpu")) || "—"; row.append(cpuCell);

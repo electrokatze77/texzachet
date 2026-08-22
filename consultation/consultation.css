@@ -402,3 +402,29 @@ body { font-size:16px; }
   .image-wrap { min-height:260px; padding-top:8px; }
   .image-wrap img { max-height:290px; }
 }
+
+/* Comparison list: dense recommendation rows rather than a spreadsheet grid. */
+.comparison-header h2 { color:#f4f1f8; font-family:var(--heading-font); font-size:38px; letter-spacing:-.045em; }
+.comparison-header h2::before { margin-right:14px; color:#ad73ff; content:"✦"; font-size:.72em; vertical-align:12%; }
+.comparison-header p { color:#9998a8; font-size:16px; }
+@media (min-width:821px) {
+  .comparison-list { overflow-x:auto; border-color:rgb(255 255 255 / 9%); border-radius:16px; background:linear-gradient(135deg,#10141e,#090d15); }
+  .comparison-table-header { display:none; }
+  .comparison-row-card { grid-template-columns:70px minmax(245px,1.62fr) minmax(110px,.8fr) minmax(145px,1fr) minmax(150px,1.08fr) minmax(145px,1fr) minmax(130px,.88fr) repeat(4,78px); min-width:1290px; padding:26px 26px 16px; border-bottom-color:rgb(255 255 255 / 8%); background:transparent; }
+  .comparison-row-card:hover,.comparison-row-card[aria-expanded="true"] { background:linear-gradient(90deg,rgb(133 79 214 / 8%),transparent 48%); }
+  .comparison-cell { min-height:78px; align-items:flex-start; padding:5px 8px; border:0; color:#d5d2db; font-size:15px; line-height:1.42; }
+  .comparison-cell:first-child { align-items:center; padding-left:0; }
+  .comparison-cell:nth-child(n+3):nth-child(-n+7) { display:grid; align-content:start; gap:7px; }
+  .comparison-cell:nth-child(n+3):nth-child(-n+7)::before { color:#9c99a5; font-size:11px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; }
+  .comparison-cell:nth-child(3)::before { content:"GPU"; }
+  .comparison-cell:nth-child(4)::before { content:"CPU"; }
+  .comparison-cell:nth-child(5)::before { content:"ОЗУ / SSD"; }
+  .comparison-cell:nth-child(6)::before { content:"ДИСПЛЕЙ"; }
+  .comparison-cell:nth-child(7)::before { content:"ЦЕНА"; }
+  .position-badge { width:55px; height:57px; border-color:rgb(190 137 255 / 62%); border-radius:8px; background:linear-gradient(135deg,#7d42cc,#30165c); box-shadow:0 0 19px rgb(142 81 230 / 22%); font-size:31px; }
+  .comparison-name { gap:8px; padding-top:1px; }.comparison-name strong { color:#f3f1f6; font-size:20px; font-weight:700; line-height:1.28; }.comparison-name .role-small { padding:3px 8px; border-color:rgb(181 121 255 / 58%); border-radius:5px; background:rgb(101 55 164 / 10%); color:#c798ff; font-size:12px; font-weight:600; }
+  .comparison-gpu { padding:4px 8px; border-color:color-mix(in srgb,var(--gpu-color) 55%,#506178); background:color-mix(in srgb,var(--gpu-color) 11%,#111924); color:#bde0cf; font-size:13px; }
+  .ram-storage { gap:4px; }.ram-storage small { color:#9290a0; font-size:14px; }.comparison-price { font-size:19px; font-weight:700; }.comparison-price a { color:#f4f2f6; text-decoration:none; }.comparison-price a::after { margin-left:7px; color:#9f9aa9; content:"↗"; font-size:14px; }
+  .comparison-cell:nth-child(n+8) { align-items:center; justify-content:center; padding:0 3px; }.table-score { width:53px; height:53px; background:conic-gradient(var(--table-score-color) var(--table-score-progress),#252c3b 0); }.table-score::before { width:42px; height:42px; background:#0d121c; }.table-score strong { font-size:15px; }.table-score-wrap { gap:5px; }.table-score-wrap small { color:#aaa7b2; font-size:11px; }
+  .comparison-details { grid-column:1 / -1; padding:12px 0 0; border:0; background:transparent; }.comparison-tabs { gap:10px; }.comparison-tabs button { min-height:37px; padding:7px 14px; border-color:rgb(255 255 255 / 6%); border-radius:7px; background:linear-gradient(135deg,#171b27,#10141e); color:#c6c3cd; font-size:12px; }.comparison-tabs button[aria-selected="true"] { border-color:color-mix(in srgb,var(--detail-color) 55%,#30384b); }.comparison-detail-content { margin-top:10px; }
+}
