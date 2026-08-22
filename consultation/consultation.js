@@ -219,7 +219,8 @@
     const normalized = valid ? Math.min(10, Math.max(0, numeric)) : 0;
     const ring = element("span", table ? "table-score" : "score-ring");
     ring.style.setProperty(table ? "--table-score-color" : "--score-color", scoreColor(value));
-    ring.style.setProperty(table ? "--table-score-progress" : "--score-progress", `${normalized * 10}%`);
+    if (table) ring.style.setProperty("--table-score-progress", `${normalized * 10}%`);
+    else ring.style.setProperty("--score-target-progress", `${normalized * 10}%`);
     ring.append(element("strong", "", valid ? normalized.toFixed(1) : "—"));
     if (!table) {
       const card = element("div", "score-card");
@@ -440,6 +441,12 @@
       addInsight(insights, "FPS", "⌁", "fps", details.fps);
     }
     if (!insights.childElementCount) insights.append(element("p", "empty-detail", "Для этой модели нет дополнительных данных в опубликованной консультации."));
+    const hero = document.querySelector(".hero-card");
+    if (hero) {
+      hero.classList.remove("hero-reveal");
+      void hero.offsetWidth;
+      hero.classList.add("hero-reveal");
+    }
     if (shouldScroll) window.requestAnimationFrame(scrollToActiveModel);
   }
 
