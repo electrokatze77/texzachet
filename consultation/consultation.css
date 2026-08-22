@@ -472,6 +472,13 @@ body { font-size:16px; }
   .hero-reveal .image-wrap { animation:none; }
 }
 
+/* Restore the product halo and correct the desktop visual gradient. */
+@media (min-width:821px) {
+  .hero-card { background:linear-gradient(115deg,#0b0f18 0%,#080b12 100%); }
+  .visual-panel { background:radial-gradient(ellipse 68% 48% at 50% 78%,rgb(107 56 204 / 30%),transparent 72%),linear-gradient(180deg,#0b0f18 0%,#0a0d15 58%,#100c20 100%); }
+  .visual-panel::before { right:0; bottom:0; left:0; height:48%; background:radial-gradient(ellipse,rgb(125 70 226 / 38%),transparent 70%); filter:blur(10px); }
+}
+
 /* Premium, one-shot hero motion. */
 @property --score-progress { syntax:"<percentage>"; inherits:false; initial-value:0%; }
 .hero-card { position:relative; }
