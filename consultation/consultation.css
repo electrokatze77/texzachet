@@ -435,6 +435,7 @@ body .hero-reveal .image-wrap::before { animation:consultation-ground-glow-visib
   .recommendation-reason { width:auto; margin:22px 34px 38px; justify-self:stretch; }
   .recommendation-reason > span, .recommendation-reason p { width:75%; text-align:left; }
 }
+@media (min-width:821px) { .recommendation-reason { margin-top:0; } }
 @keyframes consultation-ambient-glow-noticeable { 0%,100% { opacity:.62; transform:scale(.84); } 50% { opacity:1; transform:scale(.94); } }
 @keyframes consultation-ambient-glow { 0%,100% { opacity:.62; transform:scale(.84); } 50% { opacity:1; transform:scale(.94); } }
 @keyframes consultation-ground-glow-visible { 0%,100% { opacity:.72; transform:scaleX(.86); } 50% { opacity:1; transform:scaleX(.94); } }
