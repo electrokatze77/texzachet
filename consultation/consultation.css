@@ -413,6 +413,12 @@ body .hero-reveal .image-wrap::before { animation:consultation-ground-glow-visib
   body .recommendation-reason { margin:12px 14px 20px; padding:30px 11px 40px 43px; }
 }
 
+/* Final requested desktop conclusion proportions and product shadow. */
+.hero-reveal .image-wrap img { position:relative; z-index:1; animation:none; transform:none; filter:drop-shadow(0 6px 8px rgb(0 0 0 / 50%)); will-change:auto; }
+.recommendation-reason > span { color:#f0edf4; font-family:var(--heading-font); font-size:28px; font-weight:700; margin-bottom:40px; }
+.recommendation-reason { margin:22px 34px 38px; padding:47px 30px 63px 90px; }
+@media (min-width:821px) { .recommendation-reason { width:75%; margin:22px auto 38px; justify-self:center; } }
+
 /* Comparison list: dense recommendation rows rather than a spreadsheet grid. */
 .comparison-header h2 { color:#f4f1f8; font-family:var(--heading-font); font-size:38px; letter-spacing:-.045em; }
 .comparison-header h2::before { margin-right:14px; color:#ad73ff; content:"✦"; font-size:.72em; vertical-align:12%; }
