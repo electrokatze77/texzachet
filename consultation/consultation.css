@@ -435,6 +435,23 @@ body { font-size:16px; }
 .comparison-row-card:first-of-type { background:radial-gradient(ellipse 42% 120% at 18% 48%,rgb(107 57 194 / 19%),transparent 72%),linear-gradient(90deg,rgb(91 48 161 / 10%),transparent 48%); box-shadow:inset 0 0 70px rgb(102 54 183 / 8%); }
 .comparison-row-card:first-of-type .position-badge { border-color:#a66bf0; background:linear-gradient(135deg,#8c56df,#3d1f76); box-shadow:0 0 22px rgb(145 79 229 / 42%),inset 0 1px rgb(255 255 255 / 18%); }
 
+/* Infrequent, restrained twinkle for the purple recommendation stars. */
+.comparison-header h2::before,
+.active-role[data-role="recommendation"] > span,
+.recommendation-reason::before { transform-origin:center center; animation:consultation-star-twinkle 7s ease-in-out infinite; }
+.active-role[data-role="recommendation"] > span { display:inline-block; }
+@keyframes consultation-star-twinkle {
+  0%,88% { opacity:1; transform:rotate(0deg) scale(1); filter:brightness(1); }
+  92% { opacity:1; transform:rotate(10deg) scale(1.06); filter:brightness(1.12); }
+  96% { opacity:1; transform:rotate(-6deg) scale(1.03); filter:brightness(1.08); }
+  100% { opacity:1; transform:rotate(0deg) scale(1); filter:brightness(1); }
+}
+@media (prefers-reduced-motion:reduce) {
+  .comparison-header h2::before,
+  .active-role[data-role="recommendation"] > span,
+  .recommendation-reason::before { animation:none; transform:none; filter:none; }
+}
+
 /* Premium, one-shot hero motion. */
 @property --score-progress { syntax:"<percentage>"; inherits:false; initial-value:0%; }
 .hero-card { position:relative; }
