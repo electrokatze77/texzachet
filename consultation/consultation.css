@@ -481,6 +481,11 @@ body { font-size:16px; }
 }
 @keyframes consultation-ambient-glow-noticeable { 0%,100% { opacity:.6; transform:translate(-9px,3px) scale(.92); } 50% { opacity:1; transform:translate(9px,-4px) scale(1.07); } }
 
+/* Final tuning for the conclusion copy and a clean scale-only glow breath. */
+.recommendation-reason p { color:#c3c0c9; font-size:19px; line-height:1.4; }
+@keyframes consultation-ambient-glow-noticeable { 0%,100% { opacity:.62; transform:scale(.94); } 50% { opacity:1; transform:scale(1.06); } }
+@keyframes consultation-ambient-glow { 0%,100% { opacity:.62; transform:scale(.94); } 50% { opacity:1; transform:scale(1.06); } }
+
 /* Premium, one-shot hero motion. */
 @property --score-progress { syntax:"<percentage>"; inherits:false; initial-value:0%; }
 .hero-card { position:relative; }
