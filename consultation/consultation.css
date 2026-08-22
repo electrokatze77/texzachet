@@ -404,6 +404,12 @@ body { font-size:16px; }
   .image-wrap img { max-height:290px; }
 }
 
+/* Higher-specificity mobile halo overrides keep the glow visible above legacy rules. */
+body .visual-panel::before { right:-8%; bottom:-6%; left:-8%; height:54%; background:radial-gradient(ellipse,rgb(145 76 248 / 52%),transparent 70%); filter:blur(18px); }
+body .image-wrap::before { right:-6%; bottom:-9%; left:-6%; height:34%; background:radial-gradient(ellipse,rgb(159 86 255 / 70%) 0%,rgb(111 53 218 / 40%) 42%,transparent 76%); filter:blur(24px); }
+body .hero-reveal .visual-panel::before { animation:consultation-ambient-glow-noticeable 8s ease-in-out infinite; }
+body .hero-reveal .image-wrap::before { animation:consultation-ground-glow-visible 8s ease-in-out infinite; }
+
 /* Comparison list: dense recommendation rows rather than a spreadsheet grid. */
 .comparison-header h2 { color:#f4f1f8; font-family:var(--heading-font); font-size:38px; letter-spacing:-.045em; }
 .comparison-header h2::before { margin-right:14px; color:#ad73ff; content:"✦"; font-size:.72em; vertical-align:12%; }
@@ -472,6 +478,13 @@ body { font-size:16px; }
   .hero-reveal .image-wrap { animation:none; }
 }
 
+@media (max-width:820px) {
+  .visual-panel { background:radial-gradient(ellipse 100% 52% at 50% 78%,rgb(112 57 226 / 32%),transparent 72%),linear-gradient(180deg,#0b0f18 0%,#0a0d15 62%,#100c20 100%); }
+  .visual-panel::before { right:-12%; bottom:-4%; left:-12%; height:58%; background:radial-gradient(ellipse,rgb(145 76 248 / 48%),transparent 70%); filter:blur(16px); }
+  .image-wrap::before { right:-8%; bottom:-10%; left:-8%; height:38%; background:radial-gradient(ellipse,rgb(159 86 255 / 68%) 0%,rgb(111 53 218 / 38%) 42%,transparent 76%); filter:blur(22px); }
+  .specs > div::before { color:#c493ff; font-size:17px; opacity:1; }
+}
+
 /* Restore the product halo and correct the desktop visual gradient. */
 @media (min-width:821px) {
   .hero-card { background:radial-gradient(ellipse 37% 48% at 22% 76%,rgb(104 52 203 / 34%),transparent 74%),linear-gradient(180deg,#0b0f18 0%,#0a0d15 58%,#100c20 100%); }
@@ -491,6 +504,12 @@ body { font-size:16px; }
 .image-wrap::before { right:0; bottom:-8%; left:0; height:34%; background:radial-gradient(ellipse,rgb(151 83 255 / 62%) 0%,rgb(105 51 203 / 34%) 38%,transparent 74%); filter:blur(24px); }
 .hero-reveal .image-wrap::before { animation:consultation-ground-glow-visible 8s ease-in-out infinite; }
 @keyframes consultation-ground-glow-visible { 0%,100% { opacity:.72; transform:scaleX(.94); } 50% { opacity:1; transform:scaleX(1.08); } }
+@media (max-width:820px) {
+  .visual-panel { background:radial-gradient(ellipse 100% 52% at 50% 78%,rgb(112 57 226 / 32%),transparent 72%),linear-gradient(180deg,#0b0f18 0%,#0a0d15 62%,#100c20 100%); }
+  .visual-panel::before { right:-12%; bottom:-4%; left:-12%; height:58%; background:radial-gradient(ellipse,rgb(145 76 248 / 48%),transparent 70%); filter:blur(16px); }
+  .image-wrap::before { right:-8%; bottom:-10%; left:-8%; height:38%; background:radial-gradient(ellipse,rgb(159 86 255 / 68%) 0%,rgb(111 53 218 / 38%) 42%,transparent 76%); filter:blur(22px); }
+  .specs > div::before { color:#c493ff; font-size:17px; opacity:1; }
+}
 
 /* Premium, one-shot hero motion. */
 @property --score-progress { syntax:"<percentage>"; inherits:false; initial-value:0%; }
