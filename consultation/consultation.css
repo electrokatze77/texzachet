@@ -417,7 +417,13 @@ body .hero-reveal .image-wrap::before { animation:consultation-ground-glow-visib
 .hero-reveal .image-wrap img { position:relative; z-index:1; animation:none; transform:none; filter:drop-shadow(0 6px 8px rgb(0 0 0 / 50%)); will-change:auto; }
 .recommendation-reason > span { color:#f0edf4; font-family:var(--heading-font); font-size:28px; font-weight:700; margin-bottom:40px; }
 .recommendation-reason { margin:22px 34px 38px; padding:47px 30px 63px 90px; }
-@media (min-width:821px) { .recommendation-reason { width:75%; margin:22px auto 38px; justify-self:center; } }
+@media (min-width:821px) {
+  .recommendation-reason { width:auto; margin:22px 34px 38px; justify-self:stretch; }
+  .recommendation-reason > span, .recommendation-reason p { width:75%; text-align:left; }
+}
+@keyframes consultation-ambient-glow-noticeable { 0%,100% { opacity:.62; transform:scale(.84); } 50% { opacity:1; transform:scale(.94); } }
+@keyframes consultation-ambient-glow { 0%,100% { opacity:.62; transform:scale(.84); } 50% { opacity:1; transform:scale(.94); } }
+@keyframes consultation-ground-glow-visible { 0%,100% { opacity:.72; transform:scaleX(.86); } 50% { opacity:1; transform:scaleX(.94); } }
 
 /* Comparison list: dense recommendation rows rather than a spreadsheet grid. */
 .comparison-header h2 { color:#f4f1f8; font-family:var(--heading-font); font-size:38px; letter-spacing:-.045em; }
