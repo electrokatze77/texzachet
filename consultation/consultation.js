@@ -366,16 +366,16 @@
     const card = element("article", "insight-card"); card.dataset.tone = tone;
     const header = element("header"); header.append(element("span", "", icon), element("h2", "", kind === "fps" && section.resolution ? `${title} · ${section.resolution}` : title)); card.append(header);
     const list = element("div", kind === "temperature" ? "metric-list" : "fps-list");
-    if (kind === "temperature") section.entries.forEach((entry) => {
-      if (entry.type === "note") { appendSectionNotes(list, [entry.text]); return; }
-      const item = entry.item;
+    if (kind === "temperature") section.items.forEach((item) => {
       const row = element("div", "metric-row temperature-metric-row"); row.dataset.status = item.status;
       row.append(element("span", "", item.label)); const strong = element("strong");
       if (item.fragments?.length) item.fragments.forEach((fragment) => { const part = element("span", "temperature-metric-fragment", fragment.text); part.dataset.status = fragment.status; strong.append(part); }); else strong.textContent = item.value;
       row.append(strong); const indicator = element("i"); indicator.className = item.status; row.append(indicator); list.append(row);
     });
-    if (kind === "fps") section.entries.forEach((entry) => { if (entry.type === "note") { appendSectionNotes(list, [entry.text]); return; } const game = entry.game; const row = element("div", "fps-row"); row.append(element("span", "", game.name)); if (game.results?.length) { const results = element("div", "fps-results"); game.results.forEach((result) => { const part = element("span"); part.append(element("small", "", result.label), element("strong", "", result.value)); results.append(part); }); row.append(results); } else row.append(element("strong", "", `${game.fps} FPS`)); list.append(row); });
-    card.append(list); container.append(card); setupMoreControl(card, list);
+    if (kind === "fps") section.games.forEach((game) => { const row = element("div", "fps-row"); row.append(element("span", "", game.name)); if (game.results?.length) { const results = element("div", "fps-results"); game.results.forEach((result) => { const part = element("span"); part.append(element("small", "", result.label), element("strong", "", result.value)); results.append(part); }); row.append(results); } else row.append(element("strong", "", `${game.fps} FPS`)); list.append(row); });
+    const content = element("div", "insight-content");
+    content.append(list); appendSectionNotes(content, section.notes);
+    card.append(content); container.append(card); setupMoreControl(card, content);
   }
 
   function addInsight(container, title, icon, tone, value) {
