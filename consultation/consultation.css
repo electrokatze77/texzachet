@@ -730,6 +730,6 @@ body .hero-reveal .image-wrap::before { animation:consultation-ground-glow-visib
   body .specs dd { min-width:0; font-size:13px; line-height:1.2; }
   body .recommendation-reason { padding:20px 14px 24px; }
   body .recommendation-reason::before { top:20px; left:14px; margin-left:0; font-size:22px; }
-  body .recommendation-reason > span { margin:0 0 16px 8px; font-size:23px; line-height:1.25; }
+  body .recommendation-reason > span { margin:0 0 16px 26px; font-size:23px; line-height:1.25; }
   body .recommendation-reason p { width:100%; max-width:none; margin:0; padding:0; font-size:16px; line-height:1.48; }
 }
