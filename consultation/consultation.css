@@ -511,6 +511,68 @@ body .hero-reveal .image-wrap::before { animation:consultation-ground-glow-visib
   .hero-reveal .image-wrap { animation:none; }
 }
 
+/* Must remain last: mobile report copy takes precedence over legacy tuning. */
+@media (max-width:520px) {
+  body .specs > div,
+  body .specs > div:first-child { min-height:42px; padding:7px 11px; gap:7px; }
+  body .spec-icon { width:16px; height:16px; flex-basis:16px; }
+  body .specs dt { flex:0 0 auto; font-size:12px; line-height:1.2; }
+  body .specs dd { min-width:0; font-size:13px; line-height:1.2; }
+  body .recommendation-reason { padding:28px 18px 30px; }
+  body .recommendation-reason::before { top:28px; left:18px; margin-left:0; }
+  body .recommendation-reason > span { margin-left:38px; }
+  body .recommendation-reason p { width:100%; max-width:none; margin:0; padding:0; }
+}
+
+/* Final mobile readability overrides. */
+@media (max-width:520px) {
+  body .specs > div,
+  body .specs > div:first-child { min-height:42px; padding:7px 11px; gap:7px; }
+  body .spec-icon { width:16px; height:16px; flex-basis:16px; }
+  body .specs dt { flex:0 0 auto; font-size:12px; line-height:1.2; }
+  body .specs dd { min-width:0; font-size:13px; line-height:1.2; }
+
+  body .recommendation-reason { padding:28px 18px 30px; }
+  body .recommendation-reason::before { top:28px; left:18px; margin-left:0; }
+  body .recommendation-reason > span { margin-left:38px; }
+  body .recommendation-reason p { width:100%; max-width:none; margin:0; padding:0; }
+}
+
+/* RU consultation: compact specifications and readable conclusion on narrow screens. */
+@media (max-width:520px) {
+  .specs > div,
+  .specs > div:first-child {
+    min-height:42px;
+    padding:7px 11px;
+    gap:7px;
+  }
+
+  .spec-icon { width:16px; height:16px; flex-basis:16px; }
+  .specs dt { flex:0 0 auto; font-size:12px; line-height:1.2; }
+  .specs dd { min-width:0; font-size:13px; line-height:1.2; }
+
+  .recommendation-reason {
+    padding:28px 18px 30px;
+  }
+
+  .recommendation-reason::before {
+    top:28px;
+    left:18px;
+    margin-left:0;
+  }
+
+  .recommendation-reason > span {
+    margin-left:38px;
+  }
+
+  .recommendation-reason p {
+    width:100%;
+    max-width:none;
+    margin:0;
+    padding:0;
+  }
+}
+
 /* Keep the mobile palette aligned with desktop while preserving the compact layout. */
 @media (max-width:820px) {
   body .hero-card[data-role="recommendation"] {
@@ -657,4 +719,17 @@ body .hero-reveal .image-wrap::before { animation:consultation-ground-glow-visib
 @media (prefers-reduced-motion:reduce) {
   .hero-reveal .visual-panel::before,.hero-reveal .image-wrap::before,.hero-reveal .image-wrap::after { animation:none; }
   .hero-reveal .image-wrap { animation:none; }
+}
+
+/* Final mobile report readability override. */
+@media (max-width:520px) {
+  body .specs > div,
+  body .specs > div:first-child { min-height:42px; padding:7px 11px; gap:7px; }
+  body .spec-icon { width:16px; height:16px; flex-basis:16px; }
+  body .specs dt { flex:0 0 auto; font-size:12px; line-height:1.2; }
+  body .specs dd { min-width:0; font-size:13px; line-height:1.2; }
+  body .recommendation-reason { padding:28px 18px 30px; }
+  body .recommendation-reason::before { top:28px; left:18px; margin-left:0; }
+  body .recommendation-reason > span { margin-left:38px; }
+  body .recommendation-reason p { width:100%; max-width:none; margin:0; padding:0; }
 }

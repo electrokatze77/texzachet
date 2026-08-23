@@ -160,29 +160,29 @@
 
   function parseTemperatureSection(raw) {
     const source = text(raw); if (!/[\u00b0\u00ba]\s*[C\u0421]|\b\d{2,3}\s*[C\u0421]\b|\bdBA?\b|noise|\u0448\u0443\u043c|thrott/iu.test(source)) return null;
-    const items = [], notes = []; const temperaturePattern = new RegExp(TEMP_VALUE, "giu"); const noisePattern = new RegExp(NOISE_VALUE, "giu");
+    const items = [], notes = [], entries = []; const temperaturePattern = new RegExp(TEMP_VALUE, "giu"); const noisePattern = new RegExp(NOISE_VALUE, "giu");
     smartLines(source, true).forEach((line) => {
       const temperatures = [...line.matchAll(temperaturePattern)]; const noises = [...line.matchAll(noisePattern)];
       const simple = line.match(/^\s*(CPU|GPU|VRAM|SSD|SoC|\u043f\u0440\u043e\u0446\u0435\u0441\u0441\u043e\u0440|\u0432\u0438\u0434\u0435\u043e\u043a\u0430\u0440\u0442|\u0448\u0443\u043c|noise)\s*[:–—-]?\s*(.+)$/iu);
       const throttle = line.match(/^\s*(throttling|\u0442\u0440\u043e\u0442\u0442\u043b\u0438\u043d\u0433)\s*[:–—-]?\s*(.+)$/iu);
-      if (simple && (temperatures.length || noises.length)) { const aliases = { процессор: "CPU", видеокарта: "GPU", шум: "Шум" }; const label = aliases[simple[1].toLowerCase()] || simple[1]; const value = simple[2].trim(); items.push({ label, value, ...metricFragments(label, value) }); return; }
-      if (throttle) { items.push({ label: "Троттлинг", value: throttle[2].trim(), status: "neutral" }); return; }
-      const measurements = [...temperatures, ...noises]; if (!measurements.length) { notes.push(line); return; }
+      if (simple && (temperatures.length || noises.length)) { const aliases = { процессор: "CPU", видеокарта: "GPU", шум: "Шум" }; const label = aliases[simple[1].toLowerCase()] || simple[1]; const value = simple[2].trim(); const item = { label, value, ...metricFragments(label, value) }; items.push(item); entries.push({ type: "metric", item }); return; }
+      if (throttle) { const item = { label: "Троттлинг", value: throttle[2].trim(), status: "neutral" }; items.push(item); entries.push({ type: "metric", item }); return; }
+      const measurements = [...temperatures, ...noises]; if (!measurements.length) { notes.push(line); entries.push({ type: "note", text: line }); return; }
       const separated = line.match(/^(.{2,70}?)(?::|–|—)\s*(.+)$/); const first = measurements.map((match) => match.index ?? Infinity).sort((a, b) => a - b)[0];
       const label = (separated?.[1] || line.slice(0, first).trim() || "Температура").trim(); const value = separated?.[2]?.trim() || line.slice(first).trim();
-      items.push({ label, value, ...metricFragments(label, value) });
+      const item = { label, value, ...metricFragments(label, value) }; items.push(item); entries.push({ type: "metric", item });
     });
     const unique = []; const seen = new Set(); items.forEach((item) => { const key = `${item.label.toLowerCase()}|${item.value.toLowerCase()}`; if (!seen.has(key)) { seen.add(key); unique.push(item); } });
-    return unique.length ? { items: unique, notes } : null;
+    return unique.length ? { items: unique, notes, entries } : null;
   }
 
   function parseFpsSection(raw) {
     const source = text(raw); const matrixSignal = /\b(?:WUXGA|WQXGA|FHD\+?|QHD|UHD|4K|\d{3,4}\s*[x×]\s*\d{3,4})\b[^\n]{0,24}\d+(?:[.,]\d+)?\s*\/\s*\d+/i;
     if (!/\bFPS\b|frames?\s*(?:per|\/)?\s*second|\u043a\u0430\u0434\u0440\w*\s*(?:\/|\u0437\u0430)\s*\u0441/iu.test(source) && !matrixSignal.test(source)) return null;
-    const games = [], notes = []; const resolution = source.match(/\b(?:FHD|QHD|UHD|4K|1080p|1200p|1440p|1600p|2160p|\d{3,4}\s*[x×]\s*\d{3,4})\b/i)?.[0];
+    const games = [], notes = [], entries = []; const resolution = source.match(/\b(?:FHD|QHD|UHD|4K|1080p|1200p|1440p|1600p|2160p|\d{3,4}\s*[x×]\s*\d{3,4})\b/i)?.[0];
     const matrix = /\b(WUXGA|WQXGA|FHD\+?|QHD|UHD|4K|\d{3,4}\s*[x×]\s*\d{3,4})\b\s*[:–—-]?\s*(~?\d+(?:[.,]\d+)?(?:\s*\/\s*~?\d+(?:[.,]\d+)?)*)/giu; const fps = /(~?\d+(?:[.,]\d+)?(?:\s*(?:\/|[–—-])\s*~?\d+(?:[.,]\d+)?)*\+?)\s*FPS\b/giu;
-    smartLines(source).forEach((line) => { const matrixMatches = [...line.matchAll(matrix)]; if (matrixMatches.length) { const name = line.slice(0, matrixMatches[0].index).replace(/^[\s,;:–—]+|[,;:–—]+$/g, "").trim(); if (!name) { notes.push(line); return; } const results = matrixMatches.map((match) => ({ label: match[1].toUpperCase(), value: match[2].replace(/\s+/g, " ").trim() })); games.push({ name, fps: results.map((result) => result.value).join(" | "), results }); return; } const found = [...line.matchAll(fps)]; if (!found.length) { notes.push(line); return; } const first = found[0].index ?? 0; const name = line.slice(0, first).replace(/\([^)]*(?:FHD|QHD|UHD|4K)[^)]*\).*$/i, "").replace(/^[\s,;:–—]+|[,;:–—]+$/g, "").trim(); if (!name) { notes.push(line); return; } const values = found.map((match) => match[1].replace(/\s+/g, " ").trim()); games.push({ name, fps: values.join(" · ") }); });
-    const unique = []; const seen = new Set(); games.forEach((game) => { const key = `${game.name.toLowerCase()}|${game.fps}`; if (!seen.has(key)) { seen.add(key); unique.push(game); } }); return unique.length ? { resolution, games: unique, notes } : null;
+    smartLines(source).forEach((line) => { const matrixMatches = [...line.matchAll(matrix)]; if (matrixMatches.length) { const name = line.slice(0, matrixMatches[0].index).replace(/^[\s,;:–—]+|[,;:–—]+$/g, "").trim(); if (!name) { notes.push(line); entries.push({ type: "note", text: line }); return; } const results = matrixMatches.map((match) => ({ label: match[1].toUpperCase(), value: match[2].replace(/\s+/g, " ").trim() })); const game = { name, fps: results.map((result) => result.value).join(" | "), results }; games.push(game); entries.push({ type: "game", game }); return; } const found = [...line.matchAll(fps)]; if (!found.length) { notes.push(line); entries.push({ type: "note", text: line }); return; } const first = found[0].index ?? 0; const name = line.slice(0, first).replace(/\([^)]*(?:FHD|QHD|UHD|4K)[^)]*\).*$/i, "").replace(/^[\s,;:–—]+|[,;:–—]+$/g, "").trim(); if (!name) { notes.push(line); entries.push({ type: "note", text: line }); return; } const values = found.map((match) => match[1].replace(/\s+/g, " ").trim()); const game = { name, fps: values.join(" · ") }; games.push(game); entries.push({ type: "game", game }); });
+    const unique = []; const seen = new Set(); games.forEach((game) => { const key = `${game.name.toLowerCase()}|${game.fps}`; if (!seen.has(key)) { seen.add(key); unique.push(game); } }); return unique.length ? { resolution, games: unique, notes, entries } : null;
   }
 
   function setState(type, title, message) {
@@ -366,14 +366,16 @@
     const card = element("article", "insight-card"); card.dataset.tone = tone;
     const header = element("header"); header.append(element("span", "", icon), element("h2", "", kind === "fps" && section.resolution ? `${title} · ${section.resolution}` : title)); card.append(header);
     const list = element("div", kind === "temperature" ? "metric-list" : "fps-list");
-    if (kind === "temperature") section.items.forEach((item) => {
+    if (kind === "temperature") section.entries.forEach((entry) => {
+      if (entry.type === "note") { appendSectionNotes(list, [entry.text]); return; }
+      const item = entry.item;
       const row = element("div", "metric-row temperature-metric-row"); row.dataset.status = item.status;
       row.append(element("span", "", item.label)); const strong = element("strong");
       if (item.fragments?.length) item.fragments.forEach((fragment) => { const part = element("span", "temperature-metric-fragment", fragment.text); part.dataset.status = fragment.status; strong.append(part); }); else strong.textContent = item.value;
       row.append(strong); const indicator = element("i"); indicator.className = item.status; row.append(indicator); list.append(row);
     });
-    if (kind === "fps") section.games.forEach((game) => { const row = element("div", "fps-row"); row.append(element("span", "", game.name)); if (game.results?.length) { const results = element("div", "fps-results"); game.results.forEach((result) => { const part = element("span"); part.append(element("small", "", result.label), element("strong", "", result.value)); results.append(part); }); row.append(results); } else row.append(element("strong", "", `${game.fps} FPS`)); list.append(row); });
-    card.append(list); appendSectionNotes(card, section.notes); container.append(card); setupMoreControl(card, list);
+    if (kind === "fps") section.entries.forEach((entry) => { if (entry.type === "note") { appendSectionNotes(list, [entry.text]); return; } const game = entry.game; const row = element("div", "fps-row"); row.append(element("span", "", game.name)); if (game.results?.length) { const results = element("div", "fps-results"); game.results.forEach((result) => { const part = element("span"); part.append(element("small", "", result.label), element("strong", "", result.value)); results.append(part); }); row.append(results); } else row.append(element("strong", "", `${game.fps} FPS`)); list.append(row); });
+    card.append(list); container.append(card); setupMoreControl(card, list);
   }
 
   function addInsight(container, title, icon, tone, value) {
