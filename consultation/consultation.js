@@ -210,20 +210,66 @@
     const unique = []; const seen = new Set(); games.forEach((game) => { const key = `${game.name.toLowerCase()}|${game.fps}`; if (!seen.has(key)) { seen.add(key); unique.push(game); } }); return unique.length ? { resolution, games: unique, notes, entries } : null;
   }
 
+  function splitGamePresentation(value) {
+    const source = value.trim();
+    const match = source.match(/^(.*?)\s*\(([^()]*)\)\s*$/u);
+    const settings = match?.[2]?.trim() || "";
+    const settingSignal = /\b(?:low|medium|high|highest|very\s+high|ultra|extreme|max(?:imum)?|cinematic|quality|balanced|performance|native|dlss|fsr|xess|frame\s*gen(?:eration)?|mfg|ray\s*tracing|\brt\b)\b/i;
+    return settings && settingSignal.test(settings)
+      ? { name: match?.[1].trim() || source, label: settings }
+      : { name: source, label: "" };
+  }
+
+  function splitInlinePresentation(value) {
+    const parts = value.split(",").map((part) => part.trim()).filter(Boolean);
+    const resolutionIndex = parts.findIndex((part) => /^(?:\d{3,4}p|FHD|QHD|UHD|4K|\d{3,4}\s*[x×]\s*\d{3,4})\b/i.test(part));
+    if (resolutionIndex < 1) return null;
+    return { name: parts.slice(0, resolutionIndex).join(", "), label: parts.slice(resolutionIndex + 1).join(", ") };
+  }
+
+  function parseBenchmarkMatrix(raw) {
+    const source = text(raw);
+    if (!/\b(?:\d{3,4}\s*[x×]\s*\d{3,4}|\d{3,4}p)\b/i.test(source)) return null;
+    const games = [], notes = [], entries = [];
+    let resolution = "";
+    for (const line of smartLines(source)) {
+      if (/^(?:\d{3,4}\s*[x×]\s*\d{3,4}|\d{3,4}p)$/i.test(line)) { resolution = line; continue; }
+      const pieces = line.split(/;\s*/u).filter(Boolean);
+      const first = pieces.shift()?.match(/^(.+?)\s*[—–-]\s*(.+)$/u);
+      if (!first || !/[\d]/.test(first[2])) { notes.push(line); entries.push({ type: "note", text: line }); continue; }
+      const name = first[1].trim();
+      const resultPieces = [{ label: resolution, value: first[2] }, ...pieces.map((piece) => {
+        const match = piece.match(/^(.+?)\s*[—–-]\s*(.+)$/u);
+        return match ? { label: match[1].trim(), value: match[2] } : { label: resolution, value: piece };
+      })];
+      const results = resultPieces.map((result) => {
+        const value = result.value.match(/~?\d+(?:[.,]\d+)?(?:\s*[—–-]\s*~?\d+(?:[.,]\d+)?)?(?:\s*\/\s*~?\d+(?:[.,]\d+)?)*\+?/u)?.[0]?.replace(/\s+/g, " ").trim();
+        const detail = result.value.match(/\(([^()]*)\)/u)?.[1]?.trim();
+        return value ? { label: [result.label, detail].filter(Boolean).join(" · ") || "FPS", value } : null;
+      }).filter(Boolean);
+      if (!results.length) { notes.push(line); entries.push({ type: "note", text: line }); continue; }
+      const game = { name, fps: results.map((result) => result.value).join(" · "), results, detail: line };
+      games.push(game); entries.push({ type: "game", game });
+    }
+    return games.length >= 2 ? { resolution: "", games, notes, entries } : null;
+  }
+
   function parseStructuredFpsSection(raw) {
     const source = text(raw); if (!/\bFPS\b/i.test(source)) return null;
     const games = [], notes = [], entries = [];
-    const valuePattern = /(~?\d+(?:[.,]\d+)?)\s*FPS\b/giu;
+    const valuePattern = /(~?\d+(?:[.,]\d+)?(?:\s*[—–-]\s*~?\d+(?:[.,]\d+)?)?\+?)\s*FPS\b/giu;
     let currentName = "";
     smartLines(source).flatMap((line) => line.split(/;\s*(?=[^;]+[—–-])/u)).forEach((line) => {
-      const separator = line.match(/^(.+?)\s+[—–-]\s+(.+)$/u);
+      const separator = line.match(/^(.+?)\s+[—–-]\s+(.+)$/u) || line.match(/^(.+?):\s*(.+)$/u);
       if (!separator || !/\bFPS\b/i.test(separator[2])) { notes.push(line); entries.push({ type: "note", text: line }); return; }
       const head = separator[1].trim(); const tail = separator[2].trim();
       const comma = head.lastIndexOf(",");
       const resolutionHeading = head.match(/^((?:\d{3,4}p|FHD|QHD|UHD|4K)[^:]*):\s*(.+)$/i);
+      const presentation = resolutionHeading ? splitGamePresentation(resolutionHeading[2]) : null;
+      const inlinePresentation = !resolutionHeading ? splitInlinePresentation(head) : null;
       const isContinuation = comma < 0 && !resolutionHeading && /^(?:\d{3,4}p|FHD|QHD|UHD|4K)\b/i.test(head) && currentName;
-      const name = isContinuation ? currentName : resolutionHeading ? resolutionHeading[2].trim() : (comma >= 0 ? head.slice(0, comma) : head).trim();
-      const firstLabel = isContinuation ? head : resolutionHeading ? resolutionHeading[1].trim() : (comma >= 0 ? head.slice(comma + 1).trim().split(":").pop().trim() : "");
+      const name = isContinuation ? currentName : presentation ? presentation.name : inlinePresentation ? inlinePresentation.name : (comma >= 0 ? head.slice(0, comma) : head).trim();
+      const firstLabel = isContinuation ? head : presentation ? presentation.label : inlinePresentation ? inlinePresentation.label : (comma >= 0 ? head.slice(comma + 1).trim().split(":").pop().trim() : "");
       if (!name) { notes.push(line); entries.push({ type: "note", text: line }); return; }
       if (!isContinuation) currentName = name;
       const results = [];
@@ -421,7 +467,7 @@
   }
 
   function addSmartInsight(container, title, icon, tone, value, kind) {
-    const section = kind === "temperature" ? parseTemperatureSection(value) : (parseStructuredFpsSection(value) || parseFpsSection(value));
+    const section = kind === "temperature" ? parseTemperatureSection(value) : (parseBenchmarkMatrix(value) || parseStructuredFpsSection(value) || parseFpsSection(value));
     if (!section || (kind === "fps" && section.games.length <= 1 && section.notes.length > 1)) { addPlainInsight(container, title, icon, tone, value); return; }
     const card = element("article", "insight-card"); card.dataset.tone = tone;
     const header = element("header"); header.append(element("span", "", icon), element("h2", "", kind === "fps" && section.resolution ? `${title} · ${section.resolution}` : title)); card.append(header);
