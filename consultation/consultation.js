@@ -158,6 +158,17 @@
     return { fragments: fragments.length ? fragments : undefined, status: evaluated.length === 1 ? evaluated[0].status : "neutral" };
   }
 
+  function temperatureTextFragments(value) {
+    return metricFragments("", value).fragments || [{ text: value, status: "neutral" }];
+  }
+
+  function fpsConditions(value) {
+    return value
+      .replace(/(?:^|[,:;–—-]\s*)(?:about|around|~)?\s*~?\d+(?:[.,]\d+)?(?:\s*[–—-]\s*~?\d+(?:[.,]\d+)?)?\s*FPS\b/giu, "")
+      .replace(/\s*[.,:;–—-]+\s*$/u, "")
+      .trim();
+  }
+
   function parseTemperatureSection(raw) {
     const source = text(raw); if (!/[\u00b0\u00ba]\s*[C\u0421]|\b\d{2,3}\s*[C\u0421]\b|\bdBA?\b|noise|\u0448\u0443\u043c|thrott/iu.test(source)) return null;
     const items = [], notes = [], entries = []; const temperaturePattern = new RegExp(TEMP_VALUE, "giu"); const noisePattern = new RegExp(NOISE_VALUE, "giu");
@@ -173,7 +184,11 @@
       const item = { label, value, ...metricFragments(label, value) }; items.push(item); entries.push({ type: "metric", item });
     });
     const unique = []; const seen = new Set(); items.forEach((item) => { const key = `${item.label.toLowerCase()}|${item.value.toLowerCase()}`; if (!seen.has(key)) { seen.add(key); unique.push(item); } });
-    return unique.length ? { items: unique, notes, entries } : null;
+    const orderedEntries = [
+      ...unique.map((item) => ({ type: "metric", item })),
+      ...notes.map((note) => ({ type: "note", text: note })),
+    ];
+    return unique.length || notes.length ? { items: unique, notes, entries: orderedEntries } : null;
   }
 
   function parseFpsSection(raw) {
@@ -367,13 +382,18 @@
     const card = element("article", "insight-card"); card.dataset.tone = tone;
     const header = element("header"); header.append(element("span", "", icon), element("h2", "", kind === "fps" && section.resolution ? `${title} · ${section.resolution}` : title)); card.append(header);
     const list = element("div", kind === "temperature" ? "metric-list" : "fps-list");
-    if (kind === "temperature") section.items.forEach((item) => {
-      const row = element("div", "metric-row temperature-metric-row"); row.dataset.status = item.status;
+    if (kind === "temperature") (section.entries || []).forEach((entry) => {
+      if (entry.type === "note") {
+        const note = element("div", "section-notes"); const paragraph = element("p");
+        temperatureTextFragments(entry.text).forEach((fragment) => { const part = element("span", "temperature-metric-fragment", fragment.text); part.dataset.status = fragment.status; paragraph.append(part); });
+        note.append(paragraph); list.append(note); return;
+      }
+      const item = entry.item; const row = element("div", "metric-row temperature-metric-row"); row.dataset.status = item.status;
       row.append(element("span", "", item.label)); const strong = element("strong");
       if (item.fragments?.length) item.fragments.forEach((fragment) => { const part = element("span", "temperature-metric-fragment", fragment.text); part.dataset.status = fragment.status; strong.append(part); }); else strong.textContent = item.value;
       row.append(strong); const indicator = element("i"); indicator.className = item.status; row.append(indicator); list.append(row);
     });
-    if (kind === "fps") section.games.forEach((game) => { const row = element("div", "fps-row"); row.append(element("span", "", game.name)); if (game.results?.length) { const results = element("div", "fps-results"); game.results.forEach((result) => { const part = element("span"); part.append(element("small", "", result.label), element("strong", "", result.value)); results.append(part); }); row.append(results); } else row.append(element("strong", "", `${game.fps} FPS`)); list.append(row); });
+    if (kind === "fps") section.games.forEach((game) => { const row = element("div", "fps-row"); const title = element("div", "fps-title"); title.append(element("span", "", game.name)); if (game.conditions) title.append(element("small", "", game.conditions)); row.append(title); if (game.results?.length) { const results = element("div", "fps-results"); game.results.forEach((result) => { const part = element("span"); part.append(element("small", "", result.label), element("strong", "", result.value)); results.append(part); }); row.append(results); } else row.append(element("strong", "", `${game.fps} FPS`)); list.append(row); });
     const content = element("div", "insight-content");
     content.append(list); appendSectionNotes(content, section.notes);
     card.append(content); container.append(card); setupMoreControl(card, content);

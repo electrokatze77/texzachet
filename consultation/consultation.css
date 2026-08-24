@@ -386,6 +386,11 @@ body { font-size:16px; }
 .secondary-action { min-height:54px; padding:8px 18px; font-size:21px; }
 .secondary-action::after { display:inline; margin-left:42px; content:"›"; color:#f2edf8; font-size:33px; font-weight:400; line-height:.6; }
 
+.fps-title { min-width:0; display:grid; gap:3px; }
+.fps-title > span { min-width:0; overflow-wrap:anywhere; }
+.fps-title small { color:#6f85af; font-size:13px; line-height:1.35; }
+.section-notes .temperature-metric-fragment { color:#b8c2d0; }
+
 /* Give the conclusion panel a measured pause after the product details. */
 .recommendation-reason { margin:22px 34px 38px; padding:28px 30px 27px 84px; }
 .recommendation-reason > span { margin-bottom:9px; }
