@@ -204,22 +204,25 @@
     const source = text(raw); if (!/\bFPS\b/i.test(source)) return null;
     const games = [], notes = [], entries = [];
     const valuePattern = /(~?\d+(?:[.,]\d+)?)\s*FPS\b/giu;
+    let currentName = "";
     smartLines(source).flatMap((line) => line.split(/;\s*(?=[^;]+[—–-])/u)).forEach((line) => {
       const separator = line.match(/^(.+?)\s+[—–-]\s+(.+)$/u);
       if (!separator || !/\bFPS\b/i.test(separator[2])) { notes.push(line); entries.push({ type: "note", text: line }); return; }
       const head = separator[1].trim(); const tail = separator[2].trim();
       const comma = head.lastIndexOf(",");
-      const name = (comma >= 0 ? head.slice(0, comma) : head).trim();
-      const firstLabel = comma >= 0 ? head.slice(comma + 1).trim() : "";
+      const isContinuation = comma < 0 && /^(?:\d{3,4}p|FHD|QHD|UHD|4K)\b/i.test(head) && currentName;
+      const name = isContinuation ? currentName : (comma >= 0 ? head.slice(0, comma) : head).trim();
+      const firstLabel = isContinuation ? head : (comma >= 0 ? head.slice(comma + 1).trim().split(":").pop().trim() : "");
       if (!name) { notes.push(line); entries.push({ type: "note", text: line }); return; }
+      if (!isContinuation) currentName = name;
       const results = [];
       let match;
       while ((match = valuePattern.exec(tail))) {
         const before = tail.slice(0, match.index).replace(/^[,;\s]+/u, "");
         const dashLabel = before.match(/(?:^|[,;])\s*([^,;—–-]+?)\s*[—–-]\s*$/u)?.[1]?.trim();
         const after = tail.slice((match.index ?? 0) + match[0].length);
-        const trailingLabel = after.match(/^\s+([A-Za-zА-Яа-я][^,;—–-]*?)(?=\s*[,;]|\s+\d|$)/u)?.[1]?.trim();
-        const label = dashLabel || (results.length === 0 ? firstLabel : trailingLabel) || "FPS";
+        const trailingLabel = after.match(/^\s+([A-Za-zА-Яа-я][^,;—–/]*?)(?=\s*[/,;]|\s+\d|$)/u)?.[1]?.trim();
+        const label = dashLabel || trailingLabel || (results.length === 0 ? firstLabel : "") || "FPS";
         results.push({ label, value: match[1].replace(/\s+/g, " ").trim() });
       }
       if (!results.length) { notes.push(line); entries.push({ type: "note", text: line }); return; }
