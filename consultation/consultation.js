@@ -229,7 +229,8 @@
 
   function splitFpsStatements(line) {
     return line.split(/;\s*/u).reduce((statements, part) => {
-      const continuation = /^(?:\+?\s*(?:rt|dlss|fsr|xess|mfg|frame\s*gen)|(?:с|без)\s+генерац|ray\s*tracing)/iu.test(part);
+      const continuation = /^(?:\+?\s*(?:rt|dlss|fsr|xess|mfg|frame\s*gen)|(?:с|без)\s+генерац|ray\s*tracing|длительн)/iu.test(part)
+        || /^~?\d+(?:[.,]\d+)?(?:\s*[—–-]\s*~?\d+(?:[.,]\d+)?)?\s*FPS\b/iu.test(part);
       if (continuation && statements.length) statements[statements.length - 1] += `; ${part}`;
       else statements.push(part);
       return statements;
