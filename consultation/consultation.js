@@ -200,6 +200,35 @@
     const unique = []; const seen = new Set(); games.forEach((game) => { const key = `${game.name.toLowerCase()}|${game.fps}`; if (!seen.has(key)) { seen.add(key); unique.push(game); } }); return unique.length ? { resolution, games: unique, notes, entries } : null;
   }
 
+  function parseStructuredFpsSection(raw) {
+    const source = text(raw); if (!/\bFPS\b/i.test(source)) return null;
+    const games = [], notes = [], entries = [];
+    const valuePattern = /(~?\d+(?:[.,]\d+)?)\s*FPS\b/giu;
+    smartLines(source).flatMap((line) => line.split(/;\s*(?=[^;]+[—–-])/u)).forEach((line) => {
+      const separator = line.match(/^(.+?)\s+[—–-]\s+(.+)$/u);
+      if (!separator || !/\bFPS\b/i.test(separator[2])) { notes.push(line); entries.push({ type: "note", text: line }); return; }
+      const head = separator[1].trim(); const tail = separator[2].trim();
+      const comma = head.lastIndexOf(",");
+      const name = (comma >= 0 ? head.slice(0, comma) : head).trim();
+      const firstLabel = comma >= 0 ? head.slice(comma + 1).trim() : "";
+      if (!name) { notes.push(line); entries.push({ type: "note", text: line }); return; }
+      const results = [];
+      let match;
+      while ((match = valuePattern.exec(tail))) {
+        const before = tail.slice(0, match.index).replace(/^[,;\s]+/u, "");
+        const dashLabel = before.match(/(?:^|[,;])\s*([^,;—–-]+?)\s*[—–-]\s*$/u)?.[1]?.trim();
+        const after = tail.slice((match.index ?? 0) + match[0].length);
+        const trailingLabel = after.match(/^\s+([A-Za-zА-Яа-я][^,;—–-]*?)(?=\s*[,;]|\s+\d|$)/u)?.[1]?.trim();
+        const label = dashLabel || (results.length === 0 ? firstLabel : trailingLabel) || "FPS";
+        results.push({ label, value: match[1].replace(/\s+/g, " ").trim() });
+      }
+      if (!results.length) { notes.push(line); entries.push({ type: "note", text: line }); return; }
+      const game = { name, fps: results.map((result) => result.value).join(" · "), results, detail: line };
+      games.push(game); entries.push({ type: "game", game });
+    });
+    return games.length ? { resolution: source.match(/\b(?:FHD|QHD|UHD|4K|\d{3,4}p|\d{3,4}\s*[x×]\s*\d{3,4})\b/i)?.[0], games, notes, entries } : null;
+  }
+
   function setState(type, title, message) {
     status.hidden = false;
     consultationView.hidden = true;
@@ -377,7 +406,7 @@
   }
 
   function addSmartInsight(container, title, icon, tone, value, kind) {
-    const section = kind === "temperature" ? parseTemperatureSection(value) : parseFpsSection(value);
+    const section = kind === "temperature" ? parseTemperatureSection(value) : (parseStructuredFpsSection(value) || parseFpsSection(value));
     if (!section) { addPlainInsight(container, title, icon, tone, value); return; }
     const card = element("article", "insight-card"); card.dataset.tone = tone;
     const header = element("header"); header.append(element("span", "", icon), element("h2", "", kind === "fps" && section.resolution ? `${title} · ${section.resolution}` : title)); card.append(header);
