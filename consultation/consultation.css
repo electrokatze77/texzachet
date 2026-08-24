@@ -389,6 +389,8 @@ body { font-size:16px; }
 .fps-title { min-width:0; display:grid; gap:3px; }
 .fps-title > span { min-width:0; overflow-wrap:anywhere; color:#b8c2d0; font-size:14px; line-height:1.4; }
 .fps-title small { color:#6f85af; font-size:11px; line-height:1.35; text-align:right; }
+.fps-meta { min-width:0; display:flex; flex-wrap:wrap; gap:5px 10px; align-items:center; justify-content:flex-end; text-align:right; }
+.fps-conditions { color:#6f85af; font-size:11px; line-height:1.35; }
 .fps-results { max-width:100%; gap:7px 10px; justify-content:flex-end; align-content:center; }
 .fps-results small { color:#6f85af; font-size:11px; font-weight:800; }
 .fps-results strong { color:#5799ed; font-size:15px; font-weight:800; }
