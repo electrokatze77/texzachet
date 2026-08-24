@@ -495,7 +495,7 @@
     });
     if (kind === "fps") section.games.forEach((game) => { const row = element("div", "fps-row"); const title = element("div", "fps-title"); title.append(element("span", "", game.name)); row.append(title); const meta = element("div", "fps-meta"); if (game.conditions) meta.append(element("small", "fps-conditions", game.conditions)); if (game.results?.length) { const results = element("div", "fps-results"); game.results.forEach((result) => { const part = element("span"); if (result.label) part.append(element("small", "", result.label)); part.append(element("strong", "", result.value)); results.append(part); }); meta.append(results); } else meta.append(element("strong", "", game.fps)); row.append(meta); list.append(row); });
     const content = element("div", "insight-content");
-    content.append(list); appendSectionNotes(content, section.notes);
+    content.append(list); if (kind !== "temperature") appendSectionNotes(content, section.notes);
     card.append(content); container.append(card); setupMoreControl(card, content);
   }
 
