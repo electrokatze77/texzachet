@@ -220,9 +220,10 @@
       if (!separator || !/\bFPS\b/i.test(separator[2])) { notes.push(line); entries.push({ type: "note", text: line }); return; }
       const head = separator[1].trim(); const tail = separator[2].trim();
       const comma = head.lastIndexOf(",");
-      const isContinuation = comma < 0 && /^(?:\d{3,4}p|FHD|QHD|UHD|4K)\b/i.test(head) && currentName;
-      const name = isContinuation ? currentName : (comma >= 0 ? head.slice(0, comma) : head).trim();
-      const firstLabel = isContinuation ? head : (comma >= 0 ? head.slice(comma + 1).trim().split(":").pop().trim() : "");
+      const resolutionHeading = head.match(/^((?:\d{3,4}p|FHD|QHD|UHD|4K)[^:]*):\s*(.+)$/i);
+      const isContinuation = comma < 0 && !resolutionHeading && /^(?:\d{3,4}p|FHD|QHD|UHD|4K)\b/i.test(head) && currentName;
+      const name = isContinuation ? currentName : resolutionHeading ? resolutionHeading[2].trim() : (comma >= 0 ? head.slice(0, comma) : head).trim();
+      const firstLabel = isContinuation ? head : resolutionHeading ? resolutionHeading[1].trim() : (comma >= 0 ? head.slice(comma + 1).trim().split(":").pop().trim() : "");
       if (!name) { notes.push(line); entries.push({ type: "note", text: line }); return; }
       if (!isContinuation) currentName = name;
       const results = [];
@@ -239,7 +240,8 @@
       const game = { name, fps: results.map((result) => result.value).join(" · "), results, detail: line };
       games.push(game); entries.push({ type: "game", game });
     });
-    return games.length ? { resolution: source.match(/\b(?:FHD|QHD|UHD|4K|\d{3,4}p|\d{3,4}\s*[x×]\s*\d{3,4})\b/i)?.[0], games, notes, entries } : null;
+    if (!games.length || games.length * 2 < notes.length) return null;
+    return { resolution: source.match(/\b(?:FHD|QHD|UHD|4K|\d{3,4}p|\d{3,4}\s*[x×]\s*\d{3,4})\b/i)?.[0], games, notes, entries };
   }
 
   function setState(type, title, message) {
@@ -420,7 +422,7 @@
 
   function addSmartInsight(container, title, icon, tone, value, kind) {
     const section = kind === "temperature" ? parseTemperatureSection(value) : (parseStructuredFpsSection(value) || parseFpsSection(value));
-    if (!section) { addPlainInsight(container, title, icon, tone, value); return; }
+    if (!section || (kind === "fps" && section.games.length <= 1 && section.notes.length > 1)) { addPlainInsight(container, title, icon, tone, value); return; }
     const card = element("article", "insight-card"); card.dataset.tone = tone;
     const header = element("header"); header.append(element("span", "", icon), element("h2", "", kind === "fps" && section.resolution ? `${title} · ${section.resolution}` : title)); card.append(header);
     const list = element("div", kind === "temperature" ? "metric-list" : "fps-list");
