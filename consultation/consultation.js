@@ -9,7 +9,7 @@
     upgrade: { label: "Вариант с доплатой", hero: "Вариант с доплатой", mark: "★", position: "+" },
     anti: { label: "Не рекомендую", hero: "Не рекомендую к покупке", mark: "×", position: "×" }
   });
-  const TARIFFS = Object.freeze({ lite: "Lite", pro: "Pro", expert: "Expert" });
+  const TARIFFS = Object.freeze({ lite: "БАЗОВЫЙ", pro: "РАСШИРЕННЫЙ", expert: "МАКСИМАЛЬНЫЙ" });
   const GPU_COLORS = Object.freeze({
     "RTX 5090": "#cc0000", "RTX 4090": "#e06666", "RTX 5080": "#ff00ff", "RTX 5070 TI": "#9900ff",
     "RTX 5070": "#0000ff", "RTX 5060": "#3c78d8", "RTX 4080": "#134f5c", "RTX 4070": "#38761d",

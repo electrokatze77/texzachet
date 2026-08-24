@@ -382,6 +382,10 @@ body { font-size:16px; }
 @media (max-width:820px) { .page { padding-top:10px; }.top-bar,.model-bar,.report { width:min(100% - 20px,680px); }.top-bar { grid-template-columns:55px 1fr auto; gap:11px; }.brand { width:46px; height:46px; }.consultation-meta { display:grid; }.consultation-meta strong { font-size:17px; }.consultation-meta > span { overflow:hidden; font-size:12px; text-overflow:ellipsis; white-space:nowrap; }.model-bar { min-height:78px; margin-top:12px; padding:12px; border-radius:12px 12px 0 0; }.selector { grid-template-columns:1fr; gap:6px; }.selector-control { min-height:46px; font-size:14px; }.hero-card { grid-template-columns:1fr; }.visual-panel { min-height:330px; padding:24px; }.rank-badge { top:20px; left:20px; }.image-wrap { min-height:290px; padding-top:20px; }.product-panel { padding:26px 20px; }.product-panel h1 { margin-bottom:18px; font-size:27px; }.comparison-row { gap:16px; margin-top:24px; }.score-panel { grid-template-columns:repeat(4,minmax(60px,1fr)); }.score-ring { width:60px; height:60px; }.score-ring::before { width:48px; height:48px; }.primary-action { font-size:18px; }.primary-action::after { margin-left:24px; }.recommendation-reason { margin:0 14px 20px; padding:19px 18px 18px 55px; }.recommendation-reason::before { margin-left:-39px; font-size:24px; }.insights { grid-template-columns:1fr; } }
 @media (max-width:520px) { .consultation-meta > span { display:none; }.copy-button { min-height:42px; }.specs { grid-template-columns:1fr; }.specs > div:first-child { grid-column:auto; }.score-panel { grid-template-columns:repeat(2,1fr); gap:16px; } }
 
+/* Keep the secondary purchase link as prominent as the primary action. */
+.secondary-action { min-height:54px; padding:8px 18px; font-size:21px; }
+.secondary-action::after { display:inline; margin-left:42px; content:"›"; color:#f2edf8; font-size:33px; font-weight:400; line-height:.6; }
+
 /* Give the conclusion panel a measured pause after the product details. */
 .recommendation-reason { margin:22px 34px 38px; padding:28px 30px 27px 84px; }
 .recommendation-reason > span { margin-bottom:9px; }
@@ -720,6 +724,10 @@ body .hero-reveal .image-wrap::before { animation:consultation-ground-glow-visib
   .hero-reveal .visual-panel::before,.hero-reveal .image-wrap::before,.hero-reveal .image-wrap::after { animation:none; }
   .hero-reveal .image-wrap { animation:none; }
 }
+
+/* Keep the product presentation completely static. */
+.hero-reveal .image-wrap,
+.hero-reveal .image-wrap img { animation:none !important; transform:none !important; }
 
 /* Final mobile report readability override. */
 @media (max-width:520px) {
