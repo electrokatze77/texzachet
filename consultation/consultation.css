@@ -387,8 +387,16 @@ body { font-size:16px; }
 .secondary-action::after { display:inline; margin-left:42px; content:"›"; color:#f2edf8; font-size:33px; font-weight:400; line-height:.6; }
 
 .fps-title { min-width:0; display:grid; gap:3px; }
-.fps-title > span { min-width:0; overflow-wrap:anywhere; }
-.fps-title small { color:#6f85af; font-size:13px; line-height:1.35; }
+.fps-title > span { min-width:0; overflow-wrap:anywhere; color:#b8c2d0; font-size:14px; line-height:1.4; }
+.fps-title small { color:#6f85af; font-size:11px; line-height:1.35; text-align:right; }
+.fps-results { max-width:100%; gap:7px 10px; justify-content:flex-end; align-content:center; }
+.fps-results small { color:#6f85af; font-size:11px; font-weight:800; }
+.fps-results strong { color:#5799ed; font-size:15px; font-weight:800; }
+.temperature-metric-row > span { color:#b8c2d0; font-size:14px; }
+.temperature-metric-row strong { color:#b8c2d0; font-size:14px; }
+.temperature-metric-fragment[data-status="good"] { color:#60c66f; }
+.temperature-metric-fragment[data-status="warning"] { color:#f0a33b; }
+.temperature-metric-fragment[data-status="bad"] { color:#ef5964; }
 .section-notes .temperature-metric-fragment { color:#b8c2d0; }
 
 /* Give the conclusion panel a measured pause after the product details. */

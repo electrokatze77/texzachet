@@ -136,10 +136,10 @@
   function metricStatus(kind, value) {
     const maximum = highestNumber(value); if (maximum === null) return "neutral";
     if (kind === "noise") return maximum <= 40 ? "good" : maximum <= 48 ? "warning" : "bad";
-    if (kind === "surface") return maximum <= 42 ? "good" : maximum <= 48 ? "warning" : "bad";
+    if (kind === "surface") return maximum <= 50 ? "good" : maximum <= 58 ? "warning" : "bad";
     if (kind === "vram") return maximum <= 80 ? "good" : maximum <= 90 ? "warning" : "bad";
     if (kind === "gpu") return maximum <= 75 ? "good" : maximum <= 85 ? "warning" : "bad";
-    return maximum <= 80 ? "good" : maximum <= 89 ? "warning" : "bad";
+    return maximum <= 80 ? "good" : maximum <= 90 ? "warning" : "bad";
   }
 
   function metricFragments(label, value) {
