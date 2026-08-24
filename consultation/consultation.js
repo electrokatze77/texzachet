@@ -227,13 +227,22 @@
     return { name: parts.slice(0, resolutionIndex).join(", "), label: parts.slice(resolutionIndex + 1).join(", ") };
   }
 
+  function splitFpsStatements(line) {
+    return line.split(/;\s*/u).reduce((statements, part) => {
+      const continuation = /^(?:\+?\s*(?:rt|dlss|fsr|xess|mfg|frame\s*gen)|(?:с|без)\s+генерац|ray\s*tracing)/iu.test(part);
+      if (continuation && statements.length) statements[statements.length - 1] += `; ${part}`;
+      else statements.push(part);
+      return statements;
+    }, []);
+  }
+
   function parseBenchmarkMatrix(raw) {
     const source = text(raw);
     if (!/\b(?:\d{3,4}\s*[x×]\s*\d{3,4}|\d{3,4}p)\b/i.test(source)) return null;
     const games = [], notes = [], entries = [];
-    let resolution = "";
+    let resolution = ""; let hasResolutionHeading = false;
     for (const line of smartLines(source)) {
-      if (/^(?:\d{3,4}\s*[x×]\s*\d{3,4}|\d{3,4}p)$/i.test(line)) { resolution = line; continue; }
+      if (/^(?:\d{3,4}\s*[x×]\s*\d{3,4}|\d{3,4}p)$/i.test(line)) { resolution = line; hasResolutionHeading = true; continue; }
       const pieces = line.split(/;\s*/u).filter(Boolean);
       const first = pieces.shift()?.match(/^(.+?)\s*[—–-]\s*(.+)$/u);
       if (!first || !/[\d]/.test(first[2])) { notes.push(line); entries.push({ type: "note", text: line }); continue; }
@@ -245,13 +254,13 @@
       const results = resultPieces.map((result) => {
         const value = result.value.match(/~?\d+(?:[.,]\d+)?(?:\s*[—–-]\s*~?\d+(?:[.,]\d+)?)?(?:\s*\/\s*~?\d+(?:[.,]\d+)?)*\+?/u)?.[0]?.replace(/\s+/g, " ").trim();
         const detail = result.value.match(/\(([^()]*)\)/u)?.[1]?.trim();
-        return value ? { label: [result.label, detail].filter(Boolean).join(" · ") || "FPS", value } : null;
+        return value ? { label: [result.label, detail].filter(Boolean).join(" · "), value } : null;
       }).filter(Boolean);
       if (!results.length) { notes.push(line); entries.push({ type: "note", text: line }); continue; }
       const game = { name, fps: results.map((result) => result.value).join(" · "), results, detail: line };
       games.push(game); entries.push({ type: "game", game });
     }
-    return games.length >= 2 ? { resolution: "", games, notes, entries } : null;
+    return hasResolutionHeading && games.length >= 2 ? { resolution: "", games, notes, entries } : null;
   }
 
   function parseStructuredFpsSection(raw) {
@@ -259,7 +268,7 @@
     const games = [], notes = [], entries = [];
     const valuePattern = /(~?\d+(?:[.,]\d+)?(?:\s*[—–-]\s*~?\d+(?:[.,]\d+)?)?\+?)\s*FPS\b/giu;
     let currentName = "";
-    smartLines(source).flatMap((line) => line.split(/;\s*(?=[^;]+[—–-])/u)).forEach((line) => {
+    smartLines(source).flatMap(splitFpsStatements).forEach((line) => {
       const separator = line.match(/^(.+?)\s+[—–-]\s+(.+)$/u) || line.match(/^(.+?):\s*(.+)$/u);
       if (!separator || !/\bFPS\b/i.test(separator[2])) { notes.push(line); entries.push({ type: "note", text: line }); return; }
       const head = separator[1].trim(); const tail = separator[2].trim();
@@ -279,7 +288,7 @@
         const dashLabel = before.match(/(?:^|[,;])\s*([^,;—–-]+?)\s*[—–-]\s*$/u)?.[1]?.trim();
         const after = tail.slice((match.index ?? 0) + match[0].length);
         const trailingLabel = after.match(/^\s+([A-Za-zА-Яа-я][^,;—–/]*?)(?=\s*[/,;]|\s+\d|$)/u)?.[1]?.trim();
-        const label = dashLabel || trailingLabel || (results.length === 0 ? firstLabel : "") || "FPS";
+        const label = dashLabel || trailingLabel || (results.length === 0 ? firstLabel : "");
         results.push({ label, value: match[1].replace(/\s+/g, " ").trim() });
       }
       if (!results.length) { notes.push(line); entries.push({ type: "note", text: line }); return; }
@@ -483,7 +492,7 @@
       if (item.fragments?.length) item.fragments.forEach((fragment) => { const part = element("span", "temperature-metric-fragment", fragment.text); part.dataset.status = fragment.status; strong.append(part); }); else strong.textContent = item.value;
       row.append(strong); const indicator = element("i"); indicator.className = item.status; row.append(indicator); list.append(row);
     });
-    if (kind === "fps") section.games.forEach((game) => { const row = element("div", "fps-row"); const title = element("div", "fps-title"); title.append(element("span", "", game.name)); row.append(title); const meta = element("div", "fps-meta"); if (game.conditions) meta.append(element("small", "fps-conditions", game.conditions)); if (game.results?.length) { const results = element("div", "fps-results"); game.results.forEach((result) => { const part = element("span"); part.append(element("small", "", result.label), element("strong", "", result.value)); results.append(part); }); meta.append(results); } else meta.append(element("strong", "", `${game.fps} FPS`)); row.append(meta); list.append(row); });
+    if (kind === "fps") section.games.forEach((game) => { const row = element("div", "fps-row"); const title = element("div", "fps-title"); title.append(element("span", "", game.name)); row.append(title); const meta = element("div", "fps-meta"); if (game.conditions) meta.append(element("small", "fps-conditions", game.conditions)); if (game.results?.length) { const results = element("div", "fps-results"); game.results.forEach((result) => { const part = element("span"); if (result.label) part.append(element("small", "", result.label)); part.append(element("strong", "", result.value)); results.append(part); }); meta.append(results); } else meta.append(element("strong", "", game.fps)); row.append(meta); list.append(row); });
     const content = element("div", "insight-content");
     content.append(list); appendSectionNotes(content, section.notes);
     card.append(content); container.append(card); setupMoreControl(card, content);
