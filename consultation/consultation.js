@@ -603,9 +603,12 @@
     const title = text(consultation.title) || (text(consultation.clientName) ? `Подбор для ${text(consultation.clientName)}` : "Персональный подбор ноутбука");
     document.title = `${title} — ТехЗачёт`;
     $("#header-title").textContent = title;
-    $("#tariff-badge").textContent = tariff(consultation.tariff);
+    const tariffBadge = $("#tariff-badge");
+    const tariffValue = text(consultation.tariff);
+    tariffBadge.textContent = tariff(tariffValue);
+    tariffBadge.hidden = !tariffValue;
     const budget = text(consultation.budget) || "Персональная консультация";
-    $("#header-subtitle").textContent = text(consultation.clientName) ? `${text(consultation.clientName)} • ${budget}` : budget;
+    $("#header-subtitle").textContent = budget;
     $("#consultation-conclusion").textContent = text(consultation.conclusion);
     $("#final").hidden = !text(consultation.conclusion);
     renderComparisons();
