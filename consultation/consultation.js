@@ -260,12 +260,13 @@
     return `${prefix} — ${modelName(view)}`;
   }
 
-  function extraLinks(item) {
+  function extraLinks(item, labelOverride = "") {
     if (!Array.isArray(item.extraLinks)) return [];
     return item.extraLinks.map((entry, index) => {
-      if (typeof entry === "string") return { url: entry, label: `Дополнительная ссылка ${index + 1}` };
+      const fallbackLabel = labelOverride || `Дополнительная ссылка ${index + 1}`;
+      if (typeof entry === "string") return { url: entry, label: fallbackLabel };
       if (!entry || typeof entry !== "object") return null;
-      return { url: entry.url || entry.href, label: text(entry.label || entry.title || entry.name) || `Дополнительная ссылка ${index + 1}` };
+      return { url: entry.url || entry.href, label: text(entry.label || entry.title || entry.name) || fallbackLabel };
     }).filter(Boolean);
   }
 
@@ -433,7 +434,7 @@
     actions.replaceChildren();
     const mainLink = externalLink(productUrl, "Купить можно здесь", "primary-action");
     actions.append(mainLink || element("span", "disabled-action", "Цены недоступны"));
-    const secondary = extraLinks(item).map((link) => externalLink(link.url, link.label, "secondary-action")).find(Boolean);
+    const secondary = extraLinks(item, text(overrides.extraLinkText)).map((link) => externalLink(link.url, link.label, "secondary-action")).find(Boolean);
     if (secondary) actions.append(secondary);
 
     const scorePanel = $("#score-panel");
