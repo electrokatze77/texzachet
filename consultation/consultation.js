@@ -149,13 +149,23 @@
       matches.push({ start, end: start + match[0].length, status: kind ? metricStatus(kind, match[0]) : "neutral" });
     }
     for (const match of source.matchAll(new RegExp(NOISE_VALUE, "giu"))) {
-      const start = match.index ?? 0; matches.push({ start, end: start + match[0].length, status: metricStatus("noise", match[0]) });
+      const groupStart = match.index ?? 0;
+      const parts = [...match[0].matchAll(/~?\d+(?:[.,]\d+)?/gu)];
+      if (parts.length > 1) parts.forEach((part) => {
+        const start = groupStart + (part.index ?? 0);
+        matches.push({ start, end: start + part[0].length, status: metricStatus("noise", part[0]) });
+      });
+      else matches.push({ start: groupStart, end: groupStart + match[0].length, status: metricStatus("noise", match[0]) });
     }
     matches.sort((a, b) => a.start - b.start); const fragments = []; let cursor = 0;
     matches.forEach((match) => { if (match.start < cursor) return; if (match.start > cursor) fragments.push({ text: source.slice(cursor, match.start), status: "neutral" }); fragments.push({ text: source.slice(match.start, match.end), status: match.status }); cursor = match.end; });
     if (cursor < source.length) fragments.push({ text: source.slice(cursor), status: "neutral" });
     const evaluated = fragments.filter((fragment) => fragment.status !== "neutral");
-    return { fragments: fragments.length ? fragments : undefined, status: evaluated.length === 1 ? evaluated[0].status : "neutral" };
+    const status = evaluated.reduce((current, fragment) => {
+      const rank = { neutral: 0, good: 1, warning: 2, bad: 3 };
+      return rank[fragment.status] > rank[current] ? fragment.status : current;
+    }, "neutral");
+    return { fragments: fragments.length ? fragments : undefined, status };
   }
 
   function temperatureTextFragments(value) {
