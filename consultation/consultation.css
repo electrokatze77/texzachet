@@ -389,7 +389,7 @@ body { font-size:16px; }
 .fps-title { min-width:0; display:grid; gap:3px; }
 .fps-title > span { min-width:0; overflow-wrap:anywhere; color:#b8c2d0; font-size:14px; line-height:1.4; }
 .fps-title small { color:#6f85af; font-size:11px; line-height:1.35; text-align:right; }
-.fps-row { grid-template-columns:minmax(105px,.75fr) minmax(0,1.55fr); column-gap:14px; align-items:start; }
+.fps-row { grid-template-columns:minmax(0,.9fr) minmax(160px,1.1fr); column-gap:14px; align-items:start; }
 .fps-meta { min-width:0; display:flex; flex-wrap:wrap; gap:5px 10px; align-self:start; align-items:flex-start; justify-content:flex-end; text-align:right; }
 .fps-conditions { color:#6f85af; font-size:11px; line-height:1.35; }
 .fps-results { display:grid; grid-template-columns:1fr; width:100%; max-width:100%; gap:6px; justify-content:stretch; align-content:start; }
@@ -397,6 +397,7 @@ body { font-size:16px; }
 .fps-results > span small { min-width:0; overflow-wrap:anywhere; text-align:right; }
 .fps-results small { color:#6f85af; font-size:11px; font-weight:800; }
 .fps-results strong { color:#5799ed; font-size:15px; font-weight:800; }
+.fps-results > span > strong:only-child { grid-column:1 / -1; justify-self:end; white-space:nowrap; }
 .temperature-metric-row > span { color:#b8c2d0; font-size:14px; }
 .temperature-metric-row strong { color:#b8c2d0; font-size:14px; }
 .temperature-metric-fragment[data-status="good"] { color:#60c66f; }

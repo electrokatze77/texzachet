@@ -477,7 +477,8 @@
   }
 
   function addSmartInsight(container, title, icon, tone, value, kind) {
-    const section = kind === "temperature" ? parseTemperatureSection(value) : (parseBenchmarkMatrix(value) || parseStructuredFpsSection(value) || parseFpsSection(value));
+    const universalFps = window.TechZachetFpsNormalizer?.parseFpsSection?.(value);
+    const section = kind === "temperature" ? parseTemperatureSection(value) : (universalFps || parseBenchmarkMatrix(value) || parseStructuredFpsSection(value) || parseFpsSection(value));
     if (!section || (kind === "fps" && section.games.length <= 1 && section.notes.length > 1)) { addPlainInsight(container, title, icon, tone, value); return; }
     const card = element("article", "insight-card"); card.dataset.tone = tone;
     const header = element("header"); header.append(element("span", "", icon), element("h2", "", kind === "fps" && section.resolution ? `${title} · ${section.resolution}` : title)); card.append(header);
@@ -493,7 +494,7 @@
       if (item.fragments?.length) item.fragments.forEach((fragment) => { const part = element("span", "temperature-metric-fragment", fragment.text); part.dataset.status = fragment.status; strong.append(part); }); else strong.textContent = item.value;
       row.append(strong); const indicator = element("i"); indicator.className = item.status; row.append(indicator); list.append(row);
     });
-    if (kind === "fps") section.games.forEach((game) => { const row = element("div", "fps-row"); const title = element("div", "fps-title"); title.append(element("span", "", game.name)); row.append(title); const meta = element("div", "fps-meta"); if (game.conditions) meta.append(element("small", "fps-conditions", game.conditions)); if (game.results?.length) { const results = element("div", "fps-results"); game.results.forEach((result) => { const part = element("span"); if (result.label) part.append(element("small", "", result.label)); part.append(element("strong", "", result.value)); results.append(part); }); meta.append(results); } else meta.append(element("strong", "", game.fps)); row.append(meta); list.append(row); });
+    if (kind === "fps") section.games.forEach((game) => { const row = element("div", "fps-row"); const title = element("div", "fps-title"); title.append(element("span", "", game.name)); row.append(title); const meta = element("div", "fps-meta"); if (game.conditions) meta.append(element("small", "fps-conditions", game.conditions)); if (game.results?.length) { const results = element("div", "fps-results"); game.results.forEach((result) => { const part = element("span"); if (result.label) part.append(element("small", "", result.label)); part.append(element("strong", "", `${result.value} FPS`)); results.append(part); }); meta.append(results); } else meta.append(element("strong", "", `${game.fps} FPS`)); row.append(meta); list.append(row); });
     const content = element("div", "insight-content");
     content.append(list); if (kind !== "temperature") appendSectionNotes(content, section.notes);
     card.append(content); container.append(card); setupMoreControl(card, content);
