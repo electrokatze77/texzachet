@@ -106,4 +106,66 @@ const legacyResolutionHeading = parseFpsSection(
 assert.equal(game(legacyResolutionHeading, "Cyberpunk 2077").results[0].label, "Ultra");
 assert.equal(game(legacyResolutionHeading, "Forza Horizon 5").results[0].label, "High");
 
+const tufA18Fa808up = parseFpsSection(
+  "RTX 5070 у FA808UP-S8022W: офіційно 100 Вт + 15 Вт Dynamic Boost = 115 Вт max TGP; у Turbo видима перевага, у Performance ноут відстає від інших 5070 (Notebookcheck)\n" +
+  "Full HD low / mid / high / QHD / 4K\n" +
+  "Cyberpunk 2077 FHD Ultra: 93.6 FPS Performance / 105.5 FPS Turbo; тривалий прогін — близько 87.2 / 95.2 FPS\n" +
+  "GTA V — 175.7 / 159 / 107.8 / 107 (QHD)\n" +
+  "Dota 2 Reborn — 150.9 / 147.5 / 131.2 / 124.9\n" +
+  "Final Fantasy XV Benchmark — 204 / 156.2 / 123.3 / — / 93.7 (QHD), 53 (4K)\n" +
+  "X-Plane 11.11 — 110 / 97.2 / 80.9\n" +
+  "Strange Brigade — 324 / 274 / 260 / 234 / 229.6 (QHD), 89.8 (4K)\n" +
+  "Baldur’s Gate 3 — 97.7 QHD DLSS Quality / 61 QHD native / 58.1 4K DLSS Quality / 43.2 4K native\n" +
+  "Cyberpunk 2077 2.2 Phantom Liberty — 140.8 / 120.4 / 104.1 / 68.5 / 60.8 (QHD), 26.9 (4K)\n" +
+  "Indiana Jones and the Great Circle — 125.9 / — / 39.1\n" +
+  "Assassin’s Creed Shadows — 100 / 93 / 77 / 53 / 40 (QHD), 35 FPS 4K native Ultra High\n" +
+  "F1 25 — 163.8 / 160.3 / 151.5 / 27.2 FPS 1080p Ultra Max; 30.9 QHD DLSS Quality / 14.3 QHD native / 8.3 4K DLSS / 3.07 4K native\n" +
+  "Anno 117: Pax Romana — 107.6 / 85.6 / 66.2 / 34.2; 38.2 QHD DLSS Max Quality / 25.3 QHD native / 23.2 4K DLSS Max Quality"
+);
+assert.equal(tufA18Fa808up.resolution, undefined);
+assert.deepEqual(tufA18Fa808up.games.map((entry) => entry.name), [
+  "Cyberpunk 2077",
+  "GTA V",
+  "Dota 2 Reborn",
+  "Final Fantasy XV Benchmark",
+  "X-Plane 11.11",
+  "Strange Brigade",
+  "Baldur’s Gate 3",
+  "Cyberpunk 2077 2.2 Phantom Liberty",
+  "Indiana Jones and the Great Circle",
+  "Assassin’s Creed Shadows",
+  "F1 25",
+  "Anno 117: Pax Romana",
+]);
+assert.deepEqual(game(tufA18Fa808up, "Cyberpunk 2077").results, [
+  { label: "FHD Ultra · Performance", value: "93.6" },
+  { label: "FHD Ultra · Turbo", value: "105.5" },
+  { label: "FHD Ultra · тривалий прогін · Performance", value: "87.2" },
+  { label: "FHD Ultra · тривалий прогін · Turbo", value: "95.2" },
+]);
+assert.deepEqual(game(tufA18Fa808up, "GTA V").results, [
+  { label: "Full HD low", value: "175.7" },
+  { label: "Full HD mid", value: "159" },
+  { label: "Full HD high", value: "107.8" },
+  { label: "QHD", value: "107" },
+]);
+assert.deepEqual(game(tufA18Fa808up, "Baldur’s Gate 3").results, [
+  { label: "QHD DLSS Quality", value: "97.7" },
+  { label: "QHD Native", value: "61" },
+  { label: "4K DLSS Quality", value: "58.1" },
+  { label: "4K Native", value: "43.2" },
+]);
+assert.deepEqual(game(tufA18Fa808up, "F1 25").results.slice(-5), [
+  { label: "1080p Ultra Max", value: "27.2" },
+  { label: "QHD DLSS Quality", value: "30.9" },
+  { label: "QHD Native", value: "14.3" },
+  { label: "4K DLSS", value: "8.3" },
+  { label: "4K Native", value: "3.07" },
+]);
+assert.equal(tufA18Fa808up.games.some((entry) => /FPS/iu.test(entry.name)), false);
+assert.deepEqual(tufA18Fa808up.notes, [
+  "RTX 5070 у FA808UP-S8022W: офіційно 100 Вт + 15 Вт Dynamic Boost = 115 Вт max TGP; у Turbo видима перевага, у Performance ноут відстає від інших 5070 (Notebookcheck)",
+  "Full HD low / mid / high / QHD / 4K",
+]);
+
 console.log("TechZachet FPS normalizer: OK");

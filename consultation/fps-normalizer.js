@@ -189,18 +189,92 @@
     return results;
   }
 
+  function slashMatrixLabels(raw) {
+    const heading = lines(raw).find((line) => {
+      const parts = line.split(/\s*\/\s*/u);
+      return parts.length >= 3
+        && /\b(?:Full\s*HD|FHD|QHD|UHD|4K|low|mid|medium|high|ultra)\b/iu.test(line)
+        && !/\bFPS\b/iu.test(line);
+    });
+    if (!heading) return [];
+    let carriedResolution = "";
+    return heading.split(/\s*\/\s*/u).map((part) => {
+      const label = part.trim();
+      const resolution = label.match(/\b(?:Full\s*HD|FHD\+?|QHD|UHD|WUXGA|WQXGA|4K|\d{3,4}p)\b/iu)?.[0];
+      if (resolution) carriedResolution = resolution;
+      if (!resolution && carriedResolution && /^(?:low|mid(?:dle)?|medium|high|ultra)$/iu.test(label)) {
+        return `${carriedResolution} ${label}`;
+      }
+      return label;
+    });
+  }
+
+  function splitTableGameAndSettings(value) {
+    const split = splitGameAndSettings(value);
+    if (split.settings) return split;
+    const trailingSettings = value.match(/^(.*?)\s+((?:FHD\+?|QHD|UHD|WUXGA|WQXGA|4K|\d{3,4}p)\s+(?:very\s+(?:high|low|ultra)|low|mid(?:dle)?|medium|high|ultra|nightmare|cinematic|extreme|max(?:imum)?)(?:\s+.*)?)$/iu);
+    return trailingSettings
+      ? { ...split, name: cleanGameName(trailingSettings[1]), settings: settingLabel(trailingSettings[2]) }
+      : split;
+  }
+
+  function tableGameParts(line) {
+    const colon = line.match(/^(.+?):\s*((?:близько\s+)?~?\d.+)$/iu);
+    if (colon) return { label: colon[1].trim(), result: colon[2].trim() };
+    const dash = line.match(/^(.+?)\s+[–—]\s+(.+)$/u);
+    return dash ? { label: dash[1].trim(), result: dash[2].trim() } : null;
+  }
+
+  function parseSlashMatrixGame(line, columnLabels) {
+    const parts = tableGameParts(line);
+    if (!parts || !/^(?:близько\s+)?(?:~?\d|—)/iu.test(parts.result)) return null;
+    const split = splitTableGameAndSettings(parts.label);
+    if (!split.name) return null;
+    const results = [];
+    let priorLabels = [];
+    parts.result.split(/;\s*/u).filter(Boolean).forEach((rawClause) => {
+      let clause = rawClause.trim();
+      let clauseLabel = "";
+      const continuation = clause.match(/^(.+?)\s+[–—]\s+(.+)$/u);
+      if (continuation && !/^(?:близько\s+)?~?\d/iu.test(continuation[1])) {
+        clauseLabel = continuation[1].trim();
+        clause = continuation[2].trim();
+      }
+      const currentLabels = [];
+      clause.replace(/,\s+(?=(?:близько\s+)?~?\d)/giu, " / ").split(/\s*\/\s*/u).forEach((segment, index) => {
+        const source = segment.trim();
+        if (!source || /^—$/u.test(source)) return;
+        const match = source.match(/^(?:близько\s+)?(~?\d+(?:[.,]\d+)?)(?:\s*FPS\b)?\s*(.*)$/iu);
+        if (!match) return;
+        const explicitLabel = match[2].replace(/^[\s,.;:()]+|[\s,.;:()]+$/gu, "").trim();
+        const inferredLabel = explicitLabel || priorLabels[index] || columnLabels[index] || "";
+        currentLabels[index] = inferredLabel;
+        pushFpsResult(results, resultLabel([split.settings, clauseLabel, inferredLabel]), match[1]);
+      });
+      if (currentLabels.some(Boolean)) priorLabels = currentLabels;
+    });
+    return results.length
+      ? { name: split.name, fps: results.map((result) => result.value).join(" · "), results, detail: line }
+      : null;
+  }
+
   function parseFpsSection(raw) {
     const source = String(raw ?? "");
     const matrixSignal = /\b(?:WUXGA|WQXGA|FHD\+?|QHD|UHD|4K|\d{3,4}\s*[×x]\s*\d{3,4})\b[^\n]{0,24}\d+(?:[.,]\d+)?\s*\/\s*\d+/i;
     const matrixResolutions = avgMinResolutions(source);
     const avgMinSignal = matrixResolutions.length >= 2 && /\s[—–-]\s*\d+(?:[.,]\d+)?\s*\/\s*\d+(?:[.,]\d+)?\s*\|/u.test(source);
     if (!/\bFPS\b|frames?\s*(?:per|\/)?\s*second|кадр(?:ів|и)?\s*(?:\/|за)\s*с/i.test(source) && !matrixSignal.test(source) && !avgMinSignal) return null;
-    const resolution = avgMinSignal ? undefined : source.match(/\b(?:FHD|QHD|UHD|4K|1080p|1200p|1440p|1600p|2160p|\d{3,4}\s*[×x]\s*\d{3,4})\b/i)?.[0];
+    const matrixLabels = slashMatrixLabels(source);
+    const resolution = avgMinSignal || matrixLabels.length ? undefined : source.match(/\b(?:FHD|QHD|UHD|4K|1080p|1200p|1440p|1600p|2160p|\d{3,4}\s*[×x]\s*\d{3,4})\b/i)?.[0];
     const games = [], notes = [];
     for (const line of lines(source)) {
       if (avgMinSignal) {
         if (avgMinResolutions(line).length >= 2) { notes.push(line); continue; }
         const game = parseAvgMinGame(line, matrixResolutions);
+        if (game) { games.push(game); continue; }
+      }
+      if (matrixLabels.length) {
+        const game = parseSlashMatrixGame(line, matrixLabels);
         if (game) { games.push(game); continue; }
       }
       const explicitFpsValue = new RegExp(`${fpsNumberSource}\\s*FPS\\b`, "iu");
