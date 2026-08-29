@@ -17,3 +17,7 @@ if ($html -notmatch ('<source src="' + [regex]::Escape($mobileSource) + '" type=
 if ($css -notmatch '\.recommendations-phone video\s*\{[^}]*object-fit:\s*cover;') {
   throw 'The mobile recommendations preview must fill its phone container.'
 }
+
+if ($css -notmatch '\.recommendations-phone video\s*\{[^}]*transform:\s*scale\(4\);') {
+  throw 'The mobile recommendations preview must zoom the centered recording to fill its container.'
+}

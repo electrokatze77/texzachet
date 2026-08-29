@@ -2242,6 +2242,8 @@ font-size: 39px;
   border-radius: 28px;
   background: #000;
   object-fit: cover;
+  transform: scale(4);
+  transform-origin: center;
 }
 
 .phone-speaker {
