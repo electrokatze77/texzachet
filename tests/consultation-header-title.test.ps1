@@ -16,5 +16,11 @@ if ($titleCss -notmatch '(?i)(?:^|;)\s*overflow-wrap\s*:\s*anywhere\s*(?:;|$)') 
 if ($titleCss -match '(?i)(?:^|;)\s*text-overflow\s*:\s*ellipsis\s*(?:;|$)') {
   throw 'The consultation header title must not be truncated with an ellipsis'
 }
+if ($css -match '(?i)\.consultation-meta\s*>\s*span\s*\{\s*display\s*:\s*none') {
+  throw 'The mobile consultation header must keep its subtitle visible'
+}
+if ($css -notmatch '(?i)\.top-bar\s*\{\s*grid-template-columns\s*:\s*55px\s+minmax\(0,1fr\)\s+auto') {
+  throw 'The mobile header must keep logo, text and copy button in one row'
+}
 
 Write-Output 'Consultation header title wrapping: OK'
