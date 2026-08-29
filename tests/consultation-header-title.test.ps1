@@ -22,5 +22,11 @@ if ($css -match '(?i)\.consultation-meta\s*>\s*span\s*\{\s*display\s*:\s*none') 
 if ($css -notmatch '(?i)\.top-bar\s*\{\s*grid-template-columns\s*:\s*55px\s+minmax\(0,1fr\)\s+auto') {
   throw 'The mobile header must keep logo, text and copy button in one row'
 }
+if ($titleCss -notmatch '(?i)(?:^|;)\s*flex\s*:\s*0\s+1\s+auto\s*(?:;|$)') {
+  throw 'The header title must not push the tariff badge away from it'
+}
+if ($css -notmatch '(?i)\.tariff-badge\s*\{[^}]*font-size\s*:\s*10px[^}]*white-space\s*:\s*nowrap') {
+  throw 'The mobile tariff badge must keep its compact label inside the frame'
+}
 
 Write-Output 'Consultation header title wrapping: OK'
