@@ -171,7 +171,7 @@ a:focus-visible, button:focus-visible { outline: 3px solid rgb(84 140 242 / 65%)
 .store-guidance,
 .final { border-color: rgb(156 107 242 / 28%); background-color: rgb(25 25 25 / 92%); }
 .sticky-header { background: rgb(4 0 0 / 91%); }
-.model-bar { border-color: rgb(156 107 242 / 34%); background: rgb(25 25 25 / 74%); }
+.model-bar { position: sticky; top: 0; z-index: 30; border-color: rgb(156 107 242 / 34%); background: rgb(25 25 25 / 96%); box-shadow: 0 10px 24px rgb(0 0 0 / 22%); }
 .selector-control,
 .selector-menu,
 .selector-option:hover,
