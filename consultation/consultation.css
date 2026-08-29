@@ -45,7 +45,7 @@ a:focus-visible, button:focus-visible { outline: 3px solid rgb(84 140 242 / 65%)
 .brand img { display: block; width: auto; max-width: 178px; height: 46px; object-fit: contain; }
 .consultation-meta { display: grid; min-width: 0; gap: 5px; }
 .consultation-meta > div { display: flex; min-width: 0; gap: 9px; align-items: center; }
-.consultation-meta strong { overflow: hidden; color: #f0f3fa; font-size: 20px; font-weight: 800; text-overflow: ellipsis; white-space: nowrap; }
+.consultation-meta strong { flex: 1 1 auto; min-width: 0; overflow: visible; color: #f0f3fa; font-size: 20px; font-weight: 800; overflow-wrap: anywhere; text-overflow: clip; white-space: normal; }
 .consultation-meta > span { color: var(--muted); font-size: 13px; }
 .tariff-badge { min-width: 33px; padding: 4px 8px; border: 1px solid #4968a2; border-radius: 5px; background: #17233a; color: #a9c8ff; font-size: 12px; font-weight: 800; }
 .copy-button { justify-self: end; display: inline-flex; width: fit-content; min-height: 43px; gap: 8px; align-items: center; padding: 0 15px; border: 1px solid #2e3e57; border-radius: 7px; background: #0a121d; color: #b8c2d2; cursor: pointer; font-size: 12px; font-weight: 700; }
