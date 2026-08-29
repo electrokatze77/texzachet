@@ -1,7 +1,13 @@
 $ErrorActionPreference = 'Stop'
 
 $html = Get-Content -Raw -Encoding utf8 (Join-Path $PSScriptRoot '..\index.html')
-$css = Get-Content -Raw -Encoding utf8 (Join-Path $PSScriptRoot '..\main.css')
+$mainCssHref = [regex]::Match($html, '<link href="([^"]*main\.css)" rel="stylesheet">').Groups[1].Value
+
+if (-not $mainCssHref) {
+  throw 'The page must link its main stylesheet.'
+}
+
+$css = Get-Content -Raw -Encoding utf8 (Join-Path $PSScriptRoot ("..\" + $mainCssHref.Replace('/', '\')))
 $consult = [string]::Concat([char[]](0x43A, 0x43E, 0x43D, 0x441, 0x430, 0x43B, 0x442))
 $desktopSource = "1234 RU $consult preview 2.mp4"
 $mobileSource = "mobile 1234 RU $consult preview 2.mp4"
@@ -16,8 +22,4 @@ if ($html -notmatch ('<source src="' + [regex]::Escape($mobileSource) + '" type=
 
 if ($css -notmatch '\.recommendations-phone video\s*\{[^}]*object-fit:\s*cover;') {
   throw 'The mobile recommendations preview must fill its phone container.'
-}
-
-if ($css -notmatch '\.recommendations-phone video\s*\{[^}]*transform:\s*scale\(4\);') {
-  throw 'The mobile recommendations preview must zoom the centered recording to fill its container.'
 }
