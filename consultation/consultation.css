@@ -858,3 +858,29 @@ body .hero-card[data-role="anti"] .image-wrap::before { background:radial-gradie
   body .recommendation-reason > span { margin:0 0 16px 26px; font-size:23px; line-height:1.25; }
   body .recommendation-reason p { width:100%; max-width:none; margin:0; padding:0; font-size:16px; line-height:1.48; }
 }
+
+/* Keep every anti-comparison control in the same warm palette. */
+.comparison[data-variant="anti"] .comparison-header h2::before { color:var(--anti); }
+.comparison-row-card[data-role="anti"] .position-badge {
+  border-color:var(--anti);
+  background:linear-gradient(135deg,rgb(229 173 122 / 24%),rgb(55 38 26 / 88%));
+  box-shadow:0 0 19px rgb(229 173 122 / 14%);
+}
+.comparison-row-card[data-role="anti"] .comparison-name .role-small {
+  border-color:rgb(229 173 122 / 54%);
+  background:rgb(229 173 122 / 9%);
+  color:var(--anti);
+}
+.comparison-row-card[data-role="anti"] .comparison-price a,
+.comparison-row-card[data-role="anti"] .comparison-price a::after { color:#f0c9a5; text-decoration-color:rgb(229 173 122 / 56%); }
+.comparison-row-card[data-role="anti"] .comparison-tabs button {
+  border-color:rgb(229 173 122 / 16%);
+  background:linear-gradient(135deg,#211c19,#151516);
+  color:#eadcd0;
+}
+.comparison-row-card[data-role="anti"] .comparison-tabs button[aria-selected="true"] {
+  border-color:rgb(229 173 122 / 58%);
+  background:rgb(229 173 122 / 12%);
+  color:var(--anti);
+}
+.comparison-row-card[data-role="anti"] .comparison-detail-content { --detail-color:var(--anti) !important; }
