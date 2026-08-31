@@ -423,10 +423,10 @@
 
   function specIcon(label) {
     const paths = {
-      GPU: '<rect x="3" y="6" width="18" height="12" rx="2"/><circle cx="9" cy="12" r="3"/><path d="M9 9v6m-3-3h6m7-3v6m-4-6v6M6 18v3m4-3v3m4-3v3m4-3v3"/>',
-      CPU: '<rect x="4" y="4" width="16" height="16" rx="2"/><rect x="8" y="8" width="8" height="8" rx="1"/><path d="M8 1v3m4-3v3m4-3v3M8 20v3m4-3v3m4-3v3M1 8h3m-3 4h3m-3 4h3m16-8h3m-3 4h3m-3 4h3"/>',
-      RAM: '<path d="M3 6h18v12H3zM6 9v6m3-6v6m3-6v6m3-6v6m3-6v6M6 18v3m4-3v3m4-3v3m4-3v3"/>',
-      SSD: '<rect x="3" y="6" width="18" height="12" rx="2"/><circle cx="17" cy="12" r="1.4"/><path d="M6 10h6m-6 4h6M7 18v3m5-3v3m5-3v3"/>',
+      GPU: '<rect x="2.5" y="6.5" width="19" height="11" rx="1.75"/><circle cx="8" cy="12" r="2.4"/><circle cx="15.5" cy="12" r="2.4"/><path d="M2.5 10H1v4h1.5m19-5H23v6h-1.5M6 17.5V20m3-2.5V20m3-2.5V20"/>',
+      CPU: '<rect x="5" y="5" width="14" height="14" rx="2"/><rect x="8.5" y="8.5" width="7" height="7" rx="1"/><path d="M8 2v3m4-3v3m4-3v3M8 19v3m4-3v3m4-3v3M2 8h3m-3 4h3m-3 4h3m14-8h3m-3 4h3m-3 4h3"/>',
+      RAM: '<path d="M3.5 7h17A1.5 1.5 0 0 1 22 8.5v7a1.5 1.5 0 0 1-1.5 1.5h-17A1.5 1.5 0 0 1 2 15.5v-7A1.5 1.5 0 0 1 3.5 7Z"/><rect x="4" y="9" width="3" height="5" rx=".5"/><rect x="8.5" y="9" width="3" height="5" rx=".5"/><rect x="13" y="9" width="3" height="5" rx=".5"/><rect x="17.5" y="9" width="2.5" height="5" rx=".5"/><path d="M5 17v2m3-2v2m3-2v2m3-2v2m3-2v2m3-2v2"/>',
+      SSD: '<rect x="2.5" y="7" width="19" height="10" rx="2"/><circle cx="6" cy="12" r="1.25"/><circle cx="19" cy="12" r="1.25"/><path d="M9 9.5h6v5H9zM4.5 17v2m2-2v2m2-2v2m2-2v2"/>',
       DISPLAY: '<rect x="3" y="4" width="18" height="13" rx="1.5"/><path d="M9 21h6m-3-4v4"/>'
     };
     const icon = document.createElementNS("http://www.w3.org/2000/svg", "svg");

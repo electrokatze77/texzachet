@@ -10,6 +10,7 @@
   --blue-deep: #7d4fe0;
   --positive: #48ce91;
   --negative: #f05a68;
+  --anti: #e5ad7a;
   --temperature: #f1a044;
   --fps: #5799ed;
   --upgrade: #78bfff;
@@ -810,6 +811,40 @@ body .hero-reveal .image-wrap::before { animation:consultation-ground-glow-visib
   .insight-card { padding:18px 16px; }
   .insight-card header h2 { font-size:20px; line-height:1.25; }
 }
+
+/* Pale-orange anti-recommendation identity. */
+.active-role[data-role="anti"],
+.active-role[data-role="anti"] > span { color:var(--anti); }
+.rank-badge[data-role="anti"] {
+  border-color:var(--anti);
+  background:linear-gradient(145deg,#70472f,#302117);
+  box-shadow:0 0 22px rgb(229 173 122 / 20%),inset 0 1px rgb(255 255 255 / 12%);
+}
+.rank-badge[data-role="anti"] strong { color:#fff1e4; }
+.hero-card[data-role="anti"] {
+  border-color:rgb(229 173 122 / 20%);
+  background:radial-gradient(ellipse 42% 48% at 22% 76%,rgb(229 173 122 / 14%),transparent 74%),linear-gradient(180deg,#0f1014 0%,#0d0f14 58%,#17110d 100%);
+}
+body .hero-card[data-role="anti"] .visual-panel { background:transparent; }
+body .hero-card[data-role="anti"] .visual-panel::before { background:radial-gradient(ellipse,rgb(229 173 122 / 30%),transparent 70%); }
+body .hero-card[data-role="anti"] .image-wrap::before { background:radial-gradient(ellipse,rgb(229 173 122 / 30%),transparent 74%); }
+.hero-card[data-role="anti"] .recommendation-reason {
+  border-color:rgb(229 173 122 / 18%);
+  background:linear-gradient(110deg,rgb(65 43 29 / 42%),#141418);
+}
+.hero-card[data-role="anti"] .recommendation-reason::before { color:var(--anti); content:"×"; }
+.insights[data-anti="true"] .insight-card[data-tone="negative"] {
+  --card-accent:var(--anti);
+  border-color:rgb(229 173 122 / 22%);
+  background:radial-gradient(circle at 12% 0%,rgb(229 173 122 / 11%),transparent 22rem),#11141c;
+}
+.comparison[data-variant="anti"] .comparison-header h2 { color:var(--anti); }
+.comparison-row-card[data-role="anti"] {
+  --position-accent:var(--anti);
+  background:linear-gradient(90deg,rgb(229 173 122 / 7%),transparent 46%),#191919;
+}
+.comparison-row-card[data-role="anti"]:hover,
+.comparison-row-card[data-role="anti"][aria-expanded="true"] { background:linear-gradient(90deg,rgb(229 173 122 / 11%),transparent 52%),#211d1a; }
 
 /* Final mobile report readability override. */
 @media (max-width:520px) {
