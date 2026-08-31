@@ -28,5 +28,8 @@ if ($titleCss -notmatch '(?i)(?:^|;)\s*flex\s*:\s*0\s+1\s+auto\s*(?:;|$)') {
 if ($css -notmatch '(?i)\.tariff-badge\s*\{[^}]*font-size\s*:\s*10px[^}]*white-space\s*:\s*nowrap') {
   throw 'The mobile tariff badge must keep its compact label inside the frame'
 }
+if ($css -notmatch '(?is)@media\s*\(max-width:\s*820px\)[^{]*\{.*?\.tariff-badge\s*\{[^}]*flex\s*:\s*0\s+0\s+auto[^}]*width\s*:\s*max-content') {
+  throw 'The mobile tariff badge frame must not shrink below its label width'
+}
 
 Write-Output 'Consultation header title wrapping: OK'

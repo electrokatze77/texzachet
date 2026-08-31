@@ -168,4 +168,32 @@ assert.deepEqual(tufA18Fa808up.notes, [
   "Full HD low / mid / high / QHD / 4K",
 ]);
 
+const groupedBuilderMetrics = parseFpsSection(
+  "• Результати отримано на конфігурації Core i9‑14900HX + RTX 5070.\n" +
+  "• 1080p: Shadow of the Tomb Raider 178 FPS; Doom Eternal 269; Metro Exodus 122; Horizon Zero Dawn 156; Assassin’s Creed Valhalla 146.\n" +
+  "• 1080p із апскейлінгом/FG: Starfield 110; Avatar 124; Spider‑Man Remastered 151; Hogwarts Legacy 250; Cyberpunk 2077 122; Forspoken 136 FPS.\n" +
+  "• 1080p Control High + RT без DLSS: 100 FPS.\n" +
+  "• 1440p: Shadow of the Tomb Raider 135 FPS; Doom Eternal 202; Metro Exodus 94 FPS.\n" +
+  "• Синтетика: Time Spy Graphics 12 961; Steel Nomad Graphics 2 988; Port Royal 7 576; Fire Strike Graphics 29 841."
+);
+assert.deepEqual(game(groupedBuilderMetrics, "Shadow of the Tomb Raider").results, [
+  { label: "1080p", value: "178" },
+  { label: "1440p", value: "135" },
+]);
+assert.deepEqual(game(groupedBuilderMetrics, "Doom Eternal").results, [
+  { label: "1080p", value: "269" },
+  { label: "1440p", value: "202" },
+]);
+assert.deepEqual(game(groupedBuilderMetrics, "Cyberpunk 2077").results, [
+  { label: "1080p із апскейлінгом/FG", value: "122" },
+]);
+assert.deepEqual(game(groupedBuilderMetrics, "Control").results, [
+  { label: "1080p · High + RT без DLSS", value: "100" },
+]);
+assert.equal(groupedBuilderMetrics.games.some((entry) => entry.name === "1080p" || entry.name === "1440p"), false);
+assert.deepEqual(groupedBuilderMetrics.notes, [
+  "Результати отримано на конфігурації Core i9‑14900HX + RTX 5070.",
+  "Синтетика: Time Spy Graphics 12 961; Steel Nomad Graphics 2 988; Port Royal 7 576; Fire Strike Graphics 29 841.",
+]);
+
 console.log("TechZachet FPS normalizer: OK");

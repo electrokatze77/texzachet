@@ -386,7 +386,7 @@ body { font-size:16px; }
 @media (max-width:820px) {
   .consultation-meta > div { gap:6px; }
   .consultation-meta strong { font-size:16px; }
-  .tariff-badge { min-width:0; padding:3px 6px; font-size:10px; line-height:1.2; white-space:nowrap; }
+  .tariff-badge { flex:0 0 auto; width:max-content; max-width:100%; min-width:0; padding:3px 6px; font-size:10px; line-height:1.2; white-space:nowrap; }
 }
 
 /* Keep the secondary purchase link as prominent as the primary action. */
@@ -790,7 +790,7 @@ body .hero-reveal .image-wrap::before { animation:consultation-ground-glow-visib
 .insight-card[data-tone="experience"] {
   --card-accent:#a989eb;
   border-color:color-mix(in srgb,var(--card-accent) 30%,rgb(255 255 255 / 8%));
-  background:radial-gradient(circle at 12% 0%,rgb(139 96 215 / 13%),transparent 21rem),#11141c;
+  background:#11141c;
 }
 .comparison-list { max-width:100%; min-width:0; }
 .comparison-detail-content[data-section="experience"] { --detail-color:#a989eb; }
@@ -829,6 +829,7 @@ body .hero-card[data-role="anti"] .visual-panel { background:transparent; }
 body .hero-card[data-role="anti"] .visual-panel::before { background:radial-gradient(ellipse,rgb(229 173 122 / 30%),transparent 70%); }
 body .hero-card[data-role="anti"] .image-wrap::before { background:radial-gradient(ellipse,rgb(229 173 122 / 30%),transparent 74%); }
 .hero-card[data-role="anti"] .recommendation-reason {
+  margin-top:0;
   border-color:rgb(229 173 122 / 18%);
   background:linear-gradient(110deg,rgb(65 43 29 / 42%),#141418);
 }

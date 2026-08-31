@@ -18,5 +18,8 @@ assert.match(css, /@media\s*\(max-width:\s*820px\)[\s\S]*?\.insights-row\s*\{[^}
 assert.match(css, /\.insight-card[^}]*min-width\s*:\s*0/su, "cards must be allowed to shrink");
 assert.match(css, /\.detail-list\s+li[^}]*overflow-wrap\s*:\s*anywhere/su, "long owner text must wrap");
 assert.match(css, /\.comparison-list[^}]*max-width\s*:\s*100%/su, "comparison list must remain inside the viewport");
+const experienceCardRule = css.match(/\.insight-card\[data-tone="experience"\]\s*\{([^}]*)\}/su)?.[1] || "";
+assert.match(experienceCardRule, /background\s*:\s*#11141c/su, "owner experience must use the same neutral surface as the other cards");
+assert.doesNotMatch(experienceCardRule, /radial-gradient/su, "owner experience must not have a purple glow");
 
 console.log("Consultation owner experience responsive layout: OK");

@@ -17,5 +17,6 @@ assert.match(css, /\.comparison\[data-variant="anti"\]\s+\.comparison-header\s+h
 assert.match(css, /\.comparison-row-card\[data-role="anti"\]\s+\.comparison-price\s+a[^}]*color\s*:\s*#f0c9a5/su, "the anti price link must not retain the violet link color");
 assert.match(css, /\.comparison-row-card\[data-role="anti"\]\s+\.comparison-tabs\s+button\[aria-selected="true"\][^}]*color\s*:\s*var\(--anti\)/su, "the selected anti tab must use the warm accent");
 assert.match(css, /\.comparison-row-card\[data-role="anti"\]\s+\.comparison-detail-content[^}]*--detail-color\s*:\s*var\(--anti\)\s*!important/su, "the anti detail panel must override per-tab violet colors");
+assert.match(css, /\.hero-card\[data-role="anti"\]\s+\.recommendation-reason[^}]*margin-top\s*:\s*0/su, "the anti reason panel must meet the hero content without a black seam");
 
 console.log("Consultation anti-recommendation palette: OK");
