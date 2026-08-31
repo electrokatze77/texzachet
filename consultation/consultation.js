@@ -53,6 +53,21 @@
     return "";
   }
 
+  function ownerExperience(model, overrides) {
+    const aliases = [
+      "ownerExperience",
+      "ownersExperience",
+      "owner_experience",
+      "owners_experience"
+    ];
+    for (const source of [overrides, model]) {
+      for (const key of aliases) {
+        if (hasValue(source[key])) return source[key];
+      }
+    }
+    return "";
+  }
+
   function normalizeRole(role) {
     if (role === "anti" || role === "anti_recommendation") return "anti";
     return Object.prototype.hasOwnProperty.call(ROLE, role) ? role : "recommendation";
@@ -102,6 +117,10 @@
   function listLines(value) {
     const raw = Array.isArray(value) ? value : text(value).split(/\r?\n|(?=^\s*[•▪●◦✓✕×]\s+)/m);
     return raw.map((line) => text(line).replace(/^[\s•▪●◦*\-–—✓✕×]+/, "").trim()).filter(Boolean);
+  }
+
+  function hasDetailContent(value) {
+    return Array.isArray(value) ? listLines(value).length > 0 : Boolean(text(value));
   }
 
   function smartLines(raw, temperature = false) {
@@ -432,7 +451,11 @@
     const card = element("article", "insight-card");
     card.dataset.tone = tone;
     const header = element("header");
-    header.append(element("span", "", icon), element("h2", "", title));
+    const iconNode = element("span");
+    if (icon === "owner") {
+      iconNode.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.25"/><path d="M5.75 20v-1.5a6.25 6.25 0 0 1 12.5 0V20"/></svg>';
+    } else iconNode.textContent = icon;
+    header.append(iconNode, element("h2", "", title));
     const list = element("ul", "detail-list");
     lines.forEach((line) => list.append(element("li", "", line)));
     card.append(header, list);
@@ -525,6 +548,7 @@
     const price = text(effective(model, overrides, "price")) || "Цену уточняйте";
     const details = {
       pros: effective(model, overrides, "pros"), cons: effective(model, overrides, "cons"),
+      experience: ownerExperience(model, overrides),
       temperatures: effective(model, overrides, "temperaturesAndNoise"), fps: effective(model, overrides, "fps")
     };
 
@@ -576,14 +600,19 @@
     const insights = $("#insights");
     insights.replaceChildren();
     insights.dataset.anti = String(role === "anti");
+    const primaryInsights = element("div", "insights-row insights-primary");
+    const performanceInsights = element("div", "insights-row insights-performance");
     if (role === "anti") {
-      addInsight(insights, "Минусы", "×", "negative", details.cons);
+      addInsight(primaryInsights, "Минусы", "×", "negative", details.cons);
     } else {
-      addInsight(insights, "Плюсы", "✓", "positive", details.pros);
-      addInsight(insights, "Минусы", "×", "negative", details.cons);
-      addInsight(insights, "Температуры и шум", "♨", "temperature", details.temperatures);
-      addInsight(insights, "FPS", "⌁", "fps", details.fps);
+      addInsight(primaryInsights, "Плюсы", "✓", "positive", details.pros);
+      addInsight(primaryInsights, "Минусы", "×", "negative", details.cons);
+      addInsight(primaryInsights, "Опыт владельцев", "owner", "experience", details.experience);
+      addInsight(performanceInsights, "Температуры и шум", "♨", "temperature", details.temperatures);
+      addInsight(performanceInsights, "FPS", "⌁", "fps", details.fps);
     }
+    if (primaryInsights.childElementCount) insights.append(primaryInsights);
+    if (performanceInsights.childElementCount) insights.append(performanceInsights);
     if (!insights.childElementCount) insights.append(element("p", "empty-detail", "Для этой модели нет дополнительных данных в опубликованной консультации."));
     if (hero) {
       hero.classList.remove("hero-reveal");
@@ -682,8 +711,8 @@
     const tabs = element("div", "comparison-tabs"); tabs.setAttribute("role", "tablist");
     const content = element("div", "comparison-detail-content"); content.hidden = true;
     const conclusion = text(item.customConclusion) || (role === "anti" ? text(model.notes) || text(effective(model, overrides, "cons")) : text(model.notes));
-    const allTabs = [["Вывод", "?", "conclusion", conclusion, "#66a0ff"], ["Плюсы", "✓", "pros", effective(model, overrides, "pros"), "#48ce91"], ["Минусы", "×", "cons", effective(model, overrides, "cons"), "#f05a68"], ["Температуры и шум", "♨", "temperatures", effective(model, overrides, "temperaturesAndNoise"), "#f1a044"], ["FPS", "⌁", "fps", effective(model, overrides, "fps"), "#5799ed"]];
-    allTabs.filter((tab) => role !== "anti" || tab[2] === "conclusion" || tab[2] === "cons").filter((tab) => text(tab[3])).forEach((tab) => tabs.append(detailTab(row, content, tab[0], tab[1], tab[2], tab[3], tab[4])));
+    const allTabs = [["Вывод", "?", "conclusion", conclusion, "#66a0ff"], ["Плюсы", "✓", "pros", effective(model, overrides, "pros"), "#48ce91"], ["Минусы", "×", "cons", effective(model, overrides, "cons"), "#f05a68"], ["Опыт", "♙", "experience", ownerExperience(model, overrides), "#a989eb"], ["Температуры и шум", "♨", "temperatures", effective(model, overrides, "temperaturesAndNoise"), "#f1a044"], ["FPS", "⌁", "fps", effective(model, overrides, "fps"), "#5799ed"]];
+    allTabs.filter((tab) => role !== "anti" || tab[2] === "conclusion" || tab[2] === "cons" || tab[2] === "experience").filter((tab) => hasDetailContent(tab[3])).forEach((tab) => tabs.append(detailTab(row, content, tab[0], tab[1], tab[2], tab[3], tab[4])));
     if (tabs.childElementCount) { details.append(tabs, content); row.append(details); }
     const toggle = () => { if (!tabs.childElementCount) return; const open = row.getAttribute("aria-expanded") === "true"; row.setAttribute("aria-expanded", String(!open)); content.hidden = open; if (!open && !content.childElementCount) tabs.querySelector("button").click(); };
     row.addEventListener("click", (event) => { if (event.target.closest("a, button")) return; toggle(); });
