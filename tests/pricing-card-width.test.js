@@ -9,7 +9,7 @@ const planColumns = [...pricingMarkup.matchAll(/<div class="([^"]*)" data-aos="z
 
 assert.equal(planColumns.length, 3, "the pricing section must keep three plan cards");
 assert.match(pricingMarkup, /<div class="container pricing-content"(?:\s|>)/u, "pricing cards need their own wider container");
-assert.match(css, /\.pricing\s+\.pricing-content\s*\{[^}]*max-width\s*:\s*1500px/u, "the pricing container must be wider than the site default");
+assert.match(css, /\.pricing\s+\.pricing-content\s*\{[^}]*max-width\s*:\s*1520px/u, "the pricing container must be 15% wider than the site default");
 planColumns.forEach((classes) => {
   assert.match(classes, /\bcol-lg-4\b/u, "desktop pricing cards must stay in one compact row");
   assert.match(classes, /\bcol-md-6\b/u, "tablet pricing cards must remain two per row");
