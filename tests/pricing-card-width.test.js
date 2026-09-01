@@ -3,7 +3,7 @@ const fs = require("node:fs");
 const path = require("node:path");
 
 const html = fs.readFileSync(path.join(__dirname, "..", "index.html"), "utf8");
-const css = fs.readFileSync(path.join(__dirname, "..", "main.css"), "utf8");
+const css = fs.readFileSync(path.join(__dirname, "..", "assets", "css", "main.css"), "utf8");
 const pricingMarkup = html.match(/<section id="pricing"[\s\S]*?<\/section>/u)?.[0] || "";
 const planColumns = [...pricingMarkup.matchAll(/<div class="([^"]*)" data-aos="zoom-in"/gu)].map((match) => match[1]);
 
