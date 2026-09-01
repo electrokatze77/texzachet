@@ -14,6 +14,10 @@ assert.match(
 assert.match(js, /\["Опыт",\s*"[^"]+",\s*"experience"/u, "comparison details need the compact Опыт tab");
 assert.match(css, /\.insights-primary\s*\{[^}]*grid-template-columns\s*:\s*repeat\(3,\s*minmax\(0,\s*1fr\)\)/su, "the first row needs three equal cards");
 assert.match(css, /\.insights-performance\s*\{[^}]*grid-template-columns\s*:\s*repeat\(2,\s*minmax\(0,\s*1fr\)\)/su, "the second row needs two equal cards");
+const insightRowRule = css.match(/\.insights-row\s*\{([^}]*)\}/su)?.[1] || "";
+const insightCardRule = css.match(/\.insights-row\s*>\s*\.insight-card\s*\{([^}]*)\}/su)?.[1] || "";
+assert.match(insightRowRule, /align-items\s*:\s*start/su, "short insight cards must align to the top instead of stretching to a sibling height");
+assert.match(insightCardRule, /height\s*:\s*auto/su, "each insight card must end at its own content height");
 assert.match(css, /@media\s*\(max-width:\s*820px\)[\s\S]*?\.insights-row\s*\{[^}]*grid-template-columns\s*:\s*minmax\(0,\s*1fr\)/u, "mobile and narrow tablet layouts need one min-width-safe column");
 assert.match(css, /\.insight-card[^}]*min-width\s*:\s*0/su, "cards must be allowed to shrink");
 assert.match(css, /\.detail-list\s+li[^}]*overflow-wrap\s*:\s*anywhere/su, "long owner text must wrap");
