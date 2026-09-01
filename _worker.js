@@ -8,7 +8,7 @@ const ALLOWED_STATUSES = new Set([
 const PLANS = Object.freeze({
   lite: Object.freeze({ name: "БАЗОВЫЙ", amount: 2000, currency: "RUB" }),
   pro: Object.freeze({ name: "РАСШИРЕННЫЙ", amount: 3000, currency: "RUB" }),
-  expert: Object.freeze({ name: "МАКСИМАЛЬНЫЙ", amount: 4200, currency: "RUB" })
+  expert: Object.freeze({ name: "МАКСИМАЛЬНЫЙ", amount: 4300, currency: "RUB" })
 });
 const API_HEADERS = Object.freeze({
   "Cache-Control": "no-store, private",

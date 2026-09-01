@@ -33,7 +33,7 @@
   const plans = {
     lite: { name: "БАЗОВЫЙ", price: "2000 RUB" },
     pro: { name: "РАСШИРЕННЫЙ", price: "3000 RUB" },
-    expert: { name: "МАКСИМАЛЬНЫЙ", price: "4200 RUB" }
+    expert: { name: "МАКСИМАЛЬНЫЙ", price: "4300 RUB" }
   };
   let selectedPlan = "";
   let checkoutInProgress = false;
