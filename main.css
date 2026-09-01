@@ -3906,6 +3906,10 @@ font-size: 39px;
   justify-content: center;
 }
 
+.pricing .pricing-content {
+  max-width: 1500px;
+}
+
 .pricing .pricing-card {
   min-height: 0;
   background: var(--surface-color);
