@@ -196,4 +196,44 @@ assert.deepEqual(groupedBuilderMetrics.notes, [
   "Синтетика: Time Spy Graphics 12 961; Steel Nomad Graphics 2 988; Port Royal 7 576; Fire Strike Graphics 29 841.",
 ]);
 
+const unifiedConsultationMetrics = parseFpsSection(
+  "• Call of Duty: Black Ops 7 — 1920×1080, Minimum — 77 FPS; Balanced — 72; Ultra — 56; Extreme + RT — 20.\n" +
+  "• Gears 5 — 1920×1080, Medium — 79 FPS середній / 49 мінімальний.\n" +
+  "• League of Legends — 1920×1080, Low — 300+ FPS середній, 1% low >200 FPS.\n" +
+  "• League of Legends — ≈2K, Low — 300+ FPS середній, 1% low >200 FPS.\n" +
+  "• Forza Horizon 5 — ≈2K — >60 FPS середній, 1% low майже 60 FPS.\n" +
+  "• Naraka: Bladepoint — 1920×1080, Medium — 57 FPS середній; High — 44 FPS середній.\n" +
+  "• Monster Hunter Wilds — результат непридатний для комфортної гри."
+);
+assert.equal(unifiedConsultationMetrics.resolution, undefined);
+assert.deepEqual(game(unifiedConsultationMetrics, "Call of Duty: Black Ops 7").results, [
+  { label: "1920×1080 · Minimum", value: "77" },
+  { label: "1920×1080 · Balanced", value: "72" },
+  { label: "1920×1080 · Ultra", value: "56" },
+  { label: "1920×1080 · Extreme + RT", value: "20" },
+]);
+assert.deepEqual(game(unifiedConsultationMetrics, "Gears 5").results, [
+  { label: "1920×1080 · Medium · Середній", value: "79" },
+  { label: "1920×1080 · Medium · Мінімальний", value: "49" },
+]);
+assert.deepEqual(game(unifiedConsultationMetrics, "League of Legends", 0).results, [
+  { label: "1920×1080 · Low · Середній", value: "300+" },
+  { label: "1920×1080 · Low · 1% low", value: ">200" },
+]);
+assert.deepEqual(game(unifiedConsultationMetrics, "League of Legends", 1).results, [
+  { label: "≈2K · Low · Середній", value: "300+" },
+  { label: "≈2K · Low · 1% low", value: ">200" },
+]);
+assert.deepEqual(game(unifiedConsultationMetrics, "Forza Horizon 5").results, [
+  { label: "≈2K · Середній", value: ">60" },
+  { label: "≈2K · 1% low", value: "≈60" },
+]);
+assert.deepEqual(game(unifiedConsultationMetrics, "Naraka: Bladepoint").results, [
+  { label: "1920×1080 · Medium · Середній", value: "57" },
+  { label: "1920×1080 · High · Середній", value: "44" },
+]);
+assert.deepEqual(unifiedConsultationMetrics.notes, [
+  "Monster Hunter Wilds — результат непридатний для комфортної гри.",
+]);
+
 console.log("TechZachet FPS normalizer: OK");

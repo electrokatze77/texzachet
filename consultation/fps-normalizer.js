@@ -6,9 +6,11 @@
 })(typeof globalThis !== "undefined" ? globalThis : this, function () {
   "use strict";
 
-  const fpsNumberSource = String.raw`~?\d+(?:[.,]\d+)?(?:\s*[–—-]\s*~?\d+(?:[.,]\d+)?)?`;
-  const explicitSettingPattern = /\b(?:FHD\+?|QHD|UHD|WUXGA|WQXGA|4K|\d{3,4}p|\d{3,4}\s*[×x]\s*\d{3,4}|very\s+(?:high|low|ultra)|low|medium|high|ultra|nightmare|cinematic|extreme|max(?:imum)?|native|RT\b|DLSS\b|FSR\b|XeSS\b|TAA\b|MSAA\b|FG\b|MFG\b|ray\s*tracing|трасування\S*\s+промен|максимальн\S*\s+налаштуван)/iu;
-  const explicitSettingStartPattern = /^(?:FHD\+?|QHD|UHD|WUXGA|WQXGA|4K|\d{3,4}p|\d{3,4}\s*[×x]\s*\d{3,4}|very\s+(?:high|low|ultra)|low|medium|high|ultra|nightmare|cinematic|extreme|max(?:imum)?|native|RT\b|DLSS\b|FSR\b|XeSS\b|TAA\b|MSAA\b|FG\b|MFG\b|ray\s*tracing|трасування\S*\s+промен|максимальн\S*\s+налаштуван)/iu;
+  const fpsNumberSource = String.raw`(?:[>≥]\s*|~|майже\s+)?\d+(?:[.,]\d+)?(?:\s*[–—-]\s*(?:[>≥]\s*|~)?\d+(?:[.,]\d+)?)?\+?`;
+  const resolutionSource = String.raw`FHD\+?|QHD|UHD|WUXGA|WQXGA|4K|≈\s*2K|\d{3,4}p|\d{3,4}\s*[×x]\s*\d{3,4}`;
+  const resolutionGlobalPattern = new RegExp(`(?:${resolutionSource})`, "giu");
+  const explicitSettingPattern = new RegExp(`(?:${resolutionSource}|very\\s+(?:high|low|ultra)|low|medium|high|ultra|nightmare|cinematic|extreme|balanced|highest|standard|epic|minimum|max(?:imum)?|native|RT\\b|DLSS\\b|FSR\\b|XeSS\\b|TAA\\b|MSAA\\b|FG\\b|MFG\\b|ray\\s*tracing|трасування\\S*\\s+промен|максимальн\\S*\\s+налаштуван)`, "iu");
+  const explicitSettingStartPattern = new RegExp(`^(?:${resolutionSource}|very\\s+(?:high|low|ultra)|low|medium|high|ultra|nightmare|cinematic|extreme|balanced|highest|standard|epic|minimum|max(?:imum)?|native|RT\\b|DLSS\\b|FSR\\b|XeSS\\b|TAA\\b|MSAA\\b|FG\\b|MFG\\b|ray\\s*tracing|трасування\\S*\\s+промен|максимальн\\S*\\s+налаштуван)`, "iu");
 
   function lines(raw) {
     return String(raw ?? "").replace(/\r/g, "").replace(/\s*[•●▪]\s*/gu, "\n").split("\n")
@@ -119,9 +121,13 @@
 
   function clauseResultLabel(base, clause) {
     if (!clause) return base;
-    const hasResolution = /\b(?:FHD\+?|QHD|UHD|WUXGA|WQXGA|4K|\d{3,4}p|\d{3,4}\s*[×x]\s*\d{3,4})\b/iu;
-    const startsNewPreset = /\b(?:very\s+(?:high|low|ultra)|low|medium|high|ultra|nightmare|cinematic|extreme|max(?:imum)?|native|RT|DLSS|FSR|XeSS|TAA|MSAA|FG|MFG|ray\s*tracing)\b/iu.test(clause);
-    return (hasResolution.test(base) && hasResolution.test(clause)) || startsNewPreset ? settingLabel(clause) : resultLabel([base, clause]);
+    const resolution = new RegExp(`(?:${resolutionSource})`, "iu");
+    const baseResolution = base.match(resolution)?.[0];
+    const clauseResolution = clause.match(resolution)?.[0];
+    const startsNewPreset = /\b(?:very\s+(?:high|low|ultra)|low|medium|high|ultra|nightmare|cinematic|extreme|balanced|highest|standard|epic|minimum|max(?:imum)?|native|RT|DLSS|FSR|XeSS|TAA|MSAA|FG|MFG|ray\s*tracing)\b/iu.test(clause);
+    if (baseResolution && clauseResolution) return settingLabel(clause);
+    if (startsNewPreset) return resultLabel([baseResolution, clause]);
+    return resultLabel([base, clause]);
   }
 
   function descriptorLabel(value) {
@@ -132,7 +138,7 @@
   }
 
   function normalizedFpsValue(value) {
-    return value.replace(/\s+/g, " ").replace(/~/g, "").trim();
+    return value.replace(/^майже\s+/iu, "≈").replace(/^~\s*/u, "≈").replace(/^([>≥])\s*/u, "$1").replace(/\s+/g, " ").trim();
   }
 
   function pushFpsResult(results, label, value) {
@@ -166,15 +172,20 @@
 
   function parseClauseResults(resultText, baseLabel, inferLow) {
     const results = [];
-    const labelledMetric = new RegExp(`(${fpsNumberSource})\\s*(?:FPS\\s*)?(середні|середній|average|avg|максимум|maximum|max|мінімум|minimum|min)(?=\\s|[/,.;]|$)`, "giu");
+    const labelledMetric = new RegExp(`(${fpsNumberSource})\\s*(?:FPS\\s*)?(середні|середній|average|avg|максимум|maximum|max|мінімальн\\S*|мінімум|minimum|min)(?=\\s|[/,.;]|$)`, "giu");
     for (const match of resultText.matchAll(labelledMetric)) {
-      const metric = /серед|average|avg/iu.test(match[2]) ? "Середній" : /макс|maximum|max/iu.test(match[2]) ? "Максимум" : "Мінімум";
-      pushFpsResult(results, metric, match[1]);
+      const metric = /серед|average|avg/iu.test(match[2]) ? "Середній" : /макс|maximum|max/iu.test(match[2]) ? "Максимум" : "Мінімальний";
+      pushFpsResult(results, resultLabel([baseLabel, metric]), match[1]);
     }
-    if (results.length >= 2) return results;
+    const lowPattern = new RegExp(`1%\\s*low\\s*(${fpsNumberSource})(?:\\s*FPS)?`, "iu");
+    const low = resultText.match(lowPattern);
+    if (results.length) {
+      if (low) pushFpsResult(results, resultLabel([baseLabel, "1% low"]), low[1]);
+      return results;
+    }
+    const withoutLow = resultText.replace(new RegExp(lowPattern.source, "giu"), "");
     const explicit = new RegExp(`(${fpsNumberSource})\\s*FPS\\b([^/;]*)`, "giu");
-    for (const match of resultText.matchAll(explicit)) pushFpsResult(results, resultLabel([baseLabel, descriptorLabel(match[2])]), match[1]);
-    const low = resultText.match(new RegExp(`1%\\s*low\\s*(${fpsNumberSource})`, "iu"));
+    for (const match of withoutLow.matchAll(explicit)) pushFpsResult(results, resultLabel([baseLabel, descriptorLabel(match[2])]), match[1]);
     if (low) pushFpsResult(results, resultLabel([baseLabel, "1% low"]), low[1]);
     if (!results.length) {
       const values = [...resultText.matchAll(new RegExp(fpsNumberSource, "gu"))].map((match) => match[0]).filter((value) => !/^1$/u.test(value));
@@ -287,7 +298,8 @@
     const avgMinSignal = matrixResolutions.length >= 2 && /\s[—–-]\s*\d+(?:[.,]\d+)?\s*\/\s*\d+(?:[.,]\d+)?\s*\|/u.test(source);
     if (!/\bFPS\b|frames?\s*(?:per|\/)?\s*second|кадр(?:ів|и)?\s*(?:\/|за)\s*с/i.test(source) && !matrixSignal.test(source) && !avgMinSignal) return null;
     const matrixLabels = slashMatrixLabels(source);
-    const resolution = avgMinSignal || matrixLabels.length ? undefined : source.match(/\b(?:FHD|QHD|UHD|4K|1080p|1200p|1440p|1600p|2160p|\d{3,4}\s*[×x]\s*\d{3,4})\b/i)?.[0];
+    const sourceResolutions = [...source.matchAll(resolutionGlobalPattern)].map((match) => match[0].replace(/\s+/g, "").toUpperCase());
+    const resolution = avgMinSignal || matrixLabels.length || new Set(sourceResolutions).size !== 1 ? undefined : sourceResolutions[0];
     const games = [], notes = []; const groupedGames = new Map(); let hasGroupedMetrics = false;
     for (const line of lines(source)) {
       if (avgMinSignal) {
