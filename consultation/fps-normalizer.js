@@ -141,6 +141,17 @@
     return value.replace(/^майже\s+/iu, "≈").replace(/^~\s*/u, "≈").replace(/^([>≥])\s*/u, "$1").replace(/\s+/g, " ").trim();
   }
 
+  function normalizedResolution(value) {
+    return String(value ?? "").replace(/\s+/g, "").toUpperCase();
+  }
+
+  function withoutSharedResolution(label, resolution) {
+    const match = label.match(new RegExp(`(?:${resolutionSource})`, "iu"));
+    if (!match || normalizedResolution(match[0]) !== normalizedResolution(resolution)) return label;
+    return `${label.slice(0, match.index)}${label.slice((match.index ?? 0) + match[0].length)}`
+      .replace(/^\s*·\s*|\s*·\s*$/gu, "").trim();
+  }
+
   function pushFpsResult(results, label, value) {
     const result = { label: settingLabel(label), value: normalizedFpsValue(value) };
     const key = `${result.label.toLocaleLowerCase()}|${result.value}`;
@@ -377,8 +388,12 @@
       seen.add(key);
       return true;
     });
+    const sectionResolution = hasGroupedMetrics ? undefined : resolution;
+    if (sectionResolution) uniqueGames.forEach((game) => {
+      game.results?.forEach((result) => { result.label = withoutSharedResolution(result.label, sectionResolution); });
+    });
     const entries = [...uniqueGames.map((game) => ({ type: "game", game })), ...notes.map((note) => ({ type: "note", text: note }))];
-    return uniqueGames.length ? { resolution: hasGroupedMetrics ? undefined : resolution, games: uniqueGames, notes, entries } : null;
+    return uniqueGames.length ? { resolution: sectionResolution, games: uniqueGames, notes, entries } : null;
   }
 
   return Object.freeze({ parseFpsSection });

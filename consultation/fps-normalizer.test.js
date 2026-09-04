@@ -236,4 +236,18 @@ assert.deepEqual(unifiedConsultationMetrics.notes, [
   "Monster Hunter Wilds — результат непридатний для комфортної гри.",
 ]);
 
+const sharedResolutionMetrics = parseFpsSection(
+  "• Cyberpunk 2077 — 1920×1080, Low — 72.7 FPS; High — 49.6.\n" +
+  "• Gears 5 — 1920×1080, Medium — 79 FPS середній / 49 мінімальний."
+);
+assert.equal(sharedResolutionMetrics.resolution, "1920×1080");
+assert.deepEqual(game(sharedResolutionMetrics, "Cyberpunk 2077").results, [
+  { label: "Low", value: "72.7" },
+  { label: "High", value: "49.6" },
+]);
+assert.deepEqual(game(sharedResolutionMetrics, "Gears 5").results, [
+  { label: "Medium · Середній", value: "79" },
+  { label: "Medium · Мінімальний", value: "49" },
+]);
+
 console.log("TechZachet FPS normalizer: OK");
