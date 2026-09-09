@@ -93,7 +93,7 @@
       if (!parsed.pathname.startsWith(prefix)) return null;
       const decodedPath = decodeURIComponent(parsed.pathname.slice(prefix.length));
       const filename = decodedPath.split("/").pop();
-      return filename ? `/assets/laptop-images/${encodeURIComponent(filename)}` : null;
+      return filename ? `/api/laptop-images/${encodeURIComponent(filename)}` : null;
     } catch {
       return null;
     }

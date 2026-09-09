@@ -28,6 +28,8 @@ const PLATEGA_WEBHOOK_PATHS = new Set([
   "/api/platega-webhook",
   "/api/platega-webhook.php"
 ]);
+const LAPTOP_IMAGE_PATH_PREFIX = "/api/laptop-images/";
+const LAPTOP_IMAGE_EXTENSION = /\.(?:jpe?g|png|webp)$/i;
 
 class HttpError extends Error {
   constructor(status, message) {
@@ -57,6 +59,32 @@ function geoBlockedResponse() {
 
 function isConsultationPath(pathname) {
   return /^\/c\/[A-Za-z0-9_-]{40,64}\/?$/.test(pathname);
+}
+
+function laptopImageKey(pathname) {
+  if (!pathname.startsWith(LAPTOP_IMAGE_PATH_PREFIX)) return null;
+  const encodedKey = pathname.slice(LAPTOP_IMAGE_PATH_PREFIX.length);
+  if (!encodedKey || encodedKey.includes("/")) return null;
+  try {
+    const key = decodeURIComponent(encodedKey);
+    return key && !key.includes("/") && !key.includes("\\") && LAPTOP_IMAGE_EXTENSION.test(key) ? key : null;
+  } catch {
+    return null;
+  }
+}
+
+async function handleLaptopImage(request, env, imageKey) {
+  if (request.method !== "GET" && request.method !== "HEAD") {
+    return emptyResponse(405, { Allow: "GET, HEAD" });
+  }
+  if (!env.LAPTOP_IMAGES) return emptyResponse(404);
+  const sourceResponse = await env.LAPTOP_IMAGES.get(imageKey);
+  if (!sourceResponse) return emptyResponse(404);
+  const headers = new Headers();
+  sourceResponse.writeHttpMetadata(headers);
+  headers.set("Cache-Control", "public, max-age=31536000, immutable");
+  headers.set("ETag", sourceResponse.httpEtag);
+  return new Response(request.method === "HEAD" ? null : sourceResponse.body, { headers });
 }
 
 function shouldGeoBlock(request, pathname) {
@@ -675,6 +703,9 @@ async function handleWebhook(request, env, requestId) {
 
 async function handleApiRequest(request, env, requestId) {
   const path = new URL(request.url).pathname.replace(/\/+$/, "") || "/";
+  const imageKey = laptopImageKey(path);
+  if (imageKey) return handleLaptopImage(request, env, imageKey);
+  if (path.startsWith(LAPTOP_IMAGE_PATH_PREFIX)) return emptyResponse(404);
 
   switch (path) {
     case "/api/create-payment":
