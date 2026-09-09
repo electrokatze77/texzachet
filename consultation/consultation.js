@@ -109,6 +109,23 @@
     return link;
   }
 
+  function appendLinkifiedText(container, value) {
+    const content = text(value);
+    const urlPattern = /https?:\/\/[^\s<>"']+/giu;
+    let position = 0;
+    for (const match of content.matchAll(urlPattern)) {
+      const rawUrl = match[0];
+      const url = rawUrl.replace(/[.,;:!?]+$/u, "");
+      const index = match.index ?? position;
+      if (index > position) container.append(document.createTextNode(content.slice(position, index)));
+      const link = externalLink(url, url, "conclusion-link");
+      container.append(link || document.createTextNode(rawUrl));
+      if (url.length < rawUrl.length) container.append(document.createTextNode(rawUrl.slice(url.length)));
+      position = index + rawUrl.length;
+    }
+    if (position < content.length || !content) container.append(document.createTextNode(content.slice(position)));
+  }
+
   function getToken() {
     const parts = window.location.pathname.split("/").filter(Boolean);
     return parts.length === 2 && parts[0] === "c" ? parts[1] : "";
@@ -595,7 +612,9 @@
       : role === "recommendation" && Number(item.rank) === 1
         ? "Почему эта модель — лучшая в подборе"
         : "Почему эта модель в подборе";
-    $("#reason-text").textContent = conclusion;
+    const reasonText = $("#reason-text");
+    reasonText.replaceChildren();
+    appendLinkifiedText(reasonText, conclusion);
 
     const insights = $("#insights");
     insights.replaceChildren();
@@ -651,7 +670,11 @@
         return;
       }
       const lines = key === "conclusion" ? [] : listLines(raw);
-      if (key === "conclusion") content.append(element("p", "", text(raw) || "Нет отдельного вывода."));
+      if (key === "conclusion") {
+        const paragraph = element("p");
+        appendLinkifiedText(paragraph, text(raw) || "Нет отдельного вывода.");
+        content.append(paragraph);
+      }
       else if (lines.length) { const list = element("ul", "detail-list"); lines.forEach((line) => list.append(element("li", "", line))); content.append(list); }
       else content.append(element("p", "", "Для этой модели данных нет."));
       content.style.setProperty("--detail-color", tone);
@@ -759,7 +782,9 @@
     tariffBadge.hidden = !tariffValue;
     const budget = text(consultation.budget) || "Персональная консультация";
     $("#header-subtitle").textContent = budget;
-    $("#consultation-conclusion").textContent = text(consultation.conclusion);
+    const finalConclusion = $("#consultation-conclusion");
+    finalConclusion.replaceChildren();
+    appendLinkifiedText(finalConclusion, consultation.conclusion);
     $("#final").hidden = !text(consultation.conclusion);
     renderComparisons();
     renderActive();
