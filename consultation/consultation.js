@@ -26,6 +26,7 @@
   const selectorControl = $("#selector-control");
   let views = [];
   let activeIndex = 0;
+  let consultationTariff = "";
 
   function element(tag, className, text) {
     const node = document.createElement(tag);
@@ -546,6 +547,10 @@
     return addPlainInsight(container, title, icon, tone, value);
   }
 
+  function showsPerformanceInsights(value) {
+    return text(value).toLowerCase() !== "lite";
+  }
+
   function scrollToActiveModel() {
     const hero = document.querySelector(".hero-card");
     if (!hero) return;
@@ -627,8 +632,10 @@
       addInsight(primaryInsights, "Плюсы", "✓", "positive", details.pros);
       addInsight(primaryInsights, "Минусы", "×", "negative", details.cons);
       addInsight(primaryInsights, "Опыт владельцев", "owner", "experience", details.experience);
-      addInsight(performanceInsights, "Температуры и шум", "♨", "temperature", details.temperatures);
-      addInsight(performanceInsights, "FPS", "⌁", "fps", details.fps);
+      if (showsPerformanceInsights(consultationTariff)) {
+        addInsight(performanceInsights, "Температуры и шум", "♨", "temperature", details.temperatures);
+        addInsight(performanceInsights, "FPS", "⌁", "fps", details.fps);
+      }
     }
     if (primaryInsights.childElementCount) insights.append(primaryInsights);
     if (performanceInsights.childElementCount) insights.append(performanceInsights);
@@ -778,6 +785,7 @@
     $("#header-title").textContent = title;
     const tariffBadge = $("#tariff-badge");
     const tariffValue = text(consultation.tariff);
+    consultationTariff = tariffValue;
     tariffBadge.textContent = tariff(tariffValue);
     tariffBadge.hidden = !tariffValue;
     const budget = text(consultation.budget) || "Персональная консультация";
