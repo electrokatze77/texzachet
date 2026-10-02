@@ -6,9 +6,9 @@
 })(typeof globalThis !== "undefined" ? globalThis : this, function () {
   "use strict";
 
-  const fpsQualifierSource = String.raw`(?:[><≤≥~≈]\\s*|(?:майже|близько|около|приблизно|примерно|до|up\\s+to|at\\s+most|не\\s+більше(?:\\s+ніж)?|не\\s+более(?:\\s+чем)?|менше(?:\\s+ніж)?|меньше(?:\\s+чем)?|less\\s+than|понад|більше(?:\\s+ніж)?|больше(?:\\s+чем)?|more\\s+than|over|не\\s+менше(?:\\s+ніж)?|не\\s+меньше(?:\\s+чем)?|at\\s+least|від|от)\\s+)?`;
-  const fpsScalarSource = String.raw`${fpsQualifierSource}\\d+(?:[.,]\\d+)?\\+?`;
-  const fpsNumberSource = String.raw`${fpsScalarSource}(?:\\s*[–—-]\\s*${fpsScalarSource})?`;
+  const fpsQualifierSource = String.raw`(?:[><≤≥~≈]\s*|(?:майже|близько|около|приблизно|примерно|до|up\s+to|at\s+most|не\s+більше(?:\s+ніж)?|не\s+более(?:\s+чем)?|менше(?:\s+ніж)?|меньше(?:\s+чем)?|less\s+than|понад|більше(?:\s+ніж)?|больше(?:\s+чем)?|more\s+than|over|не\s+менше(?:\s+ніж)?|не\s+меньше(?:\s+чем)?|at\s+least|від|от)\s+)?`;
+  const fpsScalarSource = String.raw`${fpsQualifierSource}\d+(?:[.,]\d+)?\+?`;
+  const fpsNumberSource = String.raw`${fpsScalarSource}(?:\s*[–—-]\s*${fpsScalarSource})?`;
   const resolutionSource = String.raw`FHD\+?|QHD|UHD|WUXGA|WQXGA|4K|≈\s*2K|\d{3,4}p|\d{3,4}\s*[×x]\s*\d{3,4}`;
   const resolutionGlobalPattern = new RegExp(`(?:${resolutionSource})`, "giu");
   const explicitSettingPattern = new RegExp(`(?:${resolutionSource}|very\\s+(?:high|low|ultra)|low|medium|high|ultra|nightmare|cinematic|extreme|balanced|highest|standard|epic|minimum|max(?:imum)?|native|RT\\b|DLSS\\b|FSR\\b|XeSS\\b|TAA\\b|MSAA\\b|FG\\b|MFG\\b|ray\\s*tracing|трасування\\S*\\s+промен|максимальн\\S*\\s+налаштуван)`, "iu");
