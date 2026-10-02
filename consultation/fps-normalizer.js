@@ -142,8 +142,8 @@
   function normalizedFpsValue(value) {
     return String(value ?? "")
       .replace(/(?:не\s+більше(?:\s+ніж)?|не\s+более(?:\s+чем)?|до|up\s+to|at\s+most)\s+(?=\d)/giu, "≤")
-      .replace(/(?:менше(?:\s+ніж)?|меньше(?:\s+чем)?|less\s+than)\s+(?=\d)/giu, "<")
       .replace(/(?:не\s+менше(?:\s+ніж)?|не\s+меньше(?:\s+чем)?|at\s+least|від|от)\s+(?=\d)/giu, "≥")
+      .replace(/(?:менше(?:\s+ніж)?|меньше(?:\s+чем)?|less\s+than)\s+(?=\d)/giu, "<")
       .replace(/(?:понад|більше(?:\s+ніж)?|больше(?:\s+чем)?|more\s+than|over)\s+(?=\d)/giu, ">")
       .replace(/(?:майже|близько|около|приблизно|примерно)\s+(?=\d)/giu, "≈")
       .replace(/~\s*(?=\d)/gu, "≈")
