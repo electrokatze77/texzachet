@@ -251,9 +251,9 @@ assert.deepEqual(game(sharedResolutionMetrics, "Gears 5").results, [
 ]);
 
 const qualifiedFpsValues = parseFpsSection(
-  "GTA V — максимальные настройки — до 144 FPS\n" +
-  "Forza Horizon 5 — максимальные настройки — не более 144 FPS\n" +
-  "Overwatch — максимальные настройки — больше 144 FPS\n" +
+  "GTA V — до 144 FPS\n" +
+  "Forza Horizon 5 — не более 144 FPS\n" +
+  "Overwatch — больше 144 FPS\n" +
   "Cyberpunk 2077 — High — не меньше 60 FPS\n" +
   "Indiana Jones and the Great Circle — High — около 100 FPS\n" +
   "Hogwarts Legacy — Ultra — <75 FPS"
