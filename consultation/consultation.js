@@ -589,14 +589,24 @@
     $("#model-price").textContent = price;
 
     const overallBadge = $("#overall-badge");
-    const overallScore = scoreNumber(effective(model, overrides, "overallScore"));
-    overallBadge.hidden = overallScore === null;
-    if (overallScore !== null) {
-      const normalizedOverall = Math.min(10, Math.max(0, overallScore));
-      overallBadge.querySelector("strong").textContent = normalizedOverall.toFixed(2);
-      overallBadge.setAttribute("aria-label", `Общий балл ${normalizedOverall.toFixed(2)} из 10`);
-    } else {
-      overallBadge.removeAttribute("aria-label");
+    if (overallBadge) {
+      const sourceConfiguration = model?.row?.configuration && typeof model.row.configuration === "object"
+        ? model.row.configuration
+        : {};
+      const rawOverallScore = hasValue(overrides.overallScore)
+        ? overrides.overallScore
+        : hasValue(model.overallScore)
+          ? model.overallScore
+          : sourceConfiguration.overallScore;
+      const overallScore = scoreNumber(rawOverallScore);
+      overallBadge.hidden = overallScore === null;
+      if (overallScore !== null) {
+        const normalizedOverall = Math.min(10, Math.max(0, overallScore));
+        overallBadge.querySelector("strong").textContent = normalizedOverall.toFixed(2);
+        overallBadge.setAttribute("aria-label", `Общий балл ${normalizedOverall.toFixed(2)} из 10`);
+      } else {
+        overallBadge.removeAttribute("aria-label");
+      }
     }
 
     renderImage($("#image-wrap"), image, name);
