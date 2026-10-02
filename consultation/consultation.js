@@ -587,6 +587,18 @@
     rank.querySelector("strong").textContent = ROLE[role].position || text(item.rank) || "—";
     $("#model-name").textContent = name;
     $("#model-price").textContent = price;
+
+    const overallBadge = $("#overall-badge");
+    const overallScore = scoreNumber(effective(model, overrides, "overallScore"));
+    overallBadge.hidden = overallScore === null;
+    if (overallScore !== null) {
+      const normalizedOverall = Math.min(10, Math.max(0, overallScore));
+      overallBadge.querySelector("strong").textContent = normalizedOverall.toFixed(2);
+      overallBadge.setAttribute("aria-label", `Общий балл ${normalizedOverall.toFixed(2)} из 10`);
+    } else {
+      overallBadge.removeAttribute("aria-label");
+    }
+
     renderImage($("#image-wrap"), image, name);
 
     const specs = $("#specs");
