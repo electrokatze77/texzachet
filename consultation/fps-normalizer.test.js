@@ -56,12 +56,12 @@ const resolutions = parseFpsSection(
   "Cyberpunk 2077 RT Overdrive: 1080p — близько 39 FPS у дискретному режимі; 1440p — 19 FPS у дискретному режимі / 28 FPS у гібридному режимі"
 );
 assert.deepEqual(game(resolutions, "Cyberpunk 2077", 0).results, [
-  { label: "QHD Ultra", value: "73" },
+  { label: "QHD Ultra", value: "≈73" },
   { label: "QHD Medium", value: "119" },
   { label: "QHD Low", value: "129" },
 ]);
 assert.deepEqual(game(resolutions, "Cyberpunk 2077", 1).results, [
-  { label: "RT Overdrive · 1080p · дискретний режим", value: "39" },
+  { label: "RT Overdrive · 1080p · дискретний режим", value: "≈39" },
   { label: "RT Overdrive · 1440p · дискретний режим", value: "19" },
   { label: "RT Overdrive · 1440p · гібридний режим", value: "28" },
 ]);
@@ -249,5 +249,20 @@ assert.deepEqual(game(sharedResolutionMetrics, "Gears 5").results, [
   { label: "Medium · Середній", value: "79" },
   { label: "Medium · Мінімальний", value: "49" },
 ]);
+
+const qualifiedFpsValues = parseFpsSection(
+  "GTA V — максимальные настройки — до 144 FPS\n" +
+  "Forza Horizon 5 — максимальные настройки — не более 144 FPS\n" +
+  "Overwatch — максимальные настройки — больше 144 FPS\n" +
+  "Cyberpunk 2077 — High — не меньше 60 FPS\n" +
+  "Indiana Jones and the Great Circle — High — около 100 FPS\n" +
+  "Hogwarts Legacy — Ultra — <75 FPS"
+);
+assert.equal(game(qualifiedFpsValues, "GTA V").results[0].value, "≤144");
+assert.equal(game(qualifiedFpsValues, "Forza Horizon 5").results[0].value, "≤144");
+assert.equal(game(qualifiedFpsValues, "Overwatch").results[0].value, ">144");
+assert.equal(game(qualifiedFpsValues, "Cyberpunk 2077").results[0].value, "≥60");
+assert.equal(game(qualifiedFpsValues, "Indiana Jones and the Great Circle").results[0].value, "≈100");
+assert.equal(game(qualifiedFpsValues, "Hogwarts Legacy").results[0].value, "<75");
 
 console.log("TechZachet FPS normalizer: OK");
