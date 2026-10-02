@@ -463,16 +463,27 @@
     container.append(row);
   }
 
+  function insightIconNode(tone, fallback = "") {
+    const node = element("span");
+    const icons = {
+      positive: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5 9.5 17 19 7.5"/></svg>',
+      negative: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7 17 17M17 7 7 17"/></svg>',
+      experience: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5h6v5H9zM6 20v-3.25A4.75 4.75 0 0 1 10.75 12h2.5A4.75 4.75 0 0 1 18 16.75V20"/></svg>',
+      temperature: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 5v9.2a4 4 0 1 0 4 0V5a2 2 0 0 0-4 0ZM12 9v7"/></svg>',
+      fps: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16v10H4zM7 13h2l1.5-3 2 6 1.5-3H17"/></svg>'
+    };
+    if (icons[tone]) node.innerHTML = icons[tone];
+    else node.textContent = fallback;
+    return node;
+  }
+
   function addPlainInsight(container, title, icon, tone, value) {
     const lines = listLines(value);
     if (!lines.length) return;
     const card = element("article", "insight-card");
     card.dataset.tone = tone;
     const header = element("header");
-    const iconNode = element("span");
-    if (icon === "owner") {
-      iconNode.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.25"/><path d="M5.75 20v-1.5a6.25 6.25 0 0 1 12.5 0V20"/></svg>';
-    } else iconNode.textContent = icon;
+    const iconNode = insightIconNode(tone, icon === "owner" ? "" : icon);
     header.append(iconNode, element("h2", "", title));
     const list = element("ul", "detail-list");
     lines.forEach((line) => list.append(element("li", "", line)));
@@ -522,7 +533,7 @@
     const section = kind === "temperature" ? parseTemperatureSection(value) : (universalFps || parseBenchmarkMatrix(value) || parseStructuredFpsSection(value) || parseFpsSection(value));
     if (!section || (kind === "fps" && section.games.length <= 1 && section.notes.length > 1)) { addPlainInsight(container, title, icon, tone, value); return; }
     const card = element("article", "insight-card"); card.dataset.tone = tone;
-    const header = element("header"); header.append(element("span", "", icon), element("h2", "", kind === "fps" && section.resolution ? `${title} · ${section.resolution}` : title)); card.append(header);
+    const header = element("header"); header.append(insightIconNode(tone, icon), element("h2", "", kind === "fps" && section.resolution ? `${title} · ${section.resolution}` : title)); card.append(header);
     const list = element("div", kind === "temperature" ? "metric-list" : "fps-list");
     if (kind === "temperature") (section.entries || []).forEach((entry) => {
       if (entry.type === "note") {
