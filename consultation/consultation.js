@@ -643,6 +643,14 @@
       .forEach(([label, key]) => scorePanel.append(scoreNode(label, effective(model, overrides, key), false)));
 
     const conclusion = text(item.customConclusion) || (role === "anti" ? text(model.notes) || text(details.cons) : text(model.notes));
+    // Personalized store advice is published only for the Максимальный (Expert) tariff.
+    const storeAdvice = $("#expert-store-recommendations");
+    const storeAdviceText = consultationTariff.toLowerCase() === "expert"
+      ? text(overrides.storeRecommendations)
+      : "";
+    $("#expert-store-recommendations-text").textContent = storeAdviceText;
+    storeAdvice.hidden = !storeAdviceText;
+
     const reason = $("#recommendation-reason");
     reason.hidden = !conclusion;
     $("#reason-label").textContent = role === "anti"
