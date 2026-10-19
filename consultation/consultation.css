@@ -1067,3 +1067,31 @@ body .hero-card[data-role="anti"] .image-wrap::before { background:radial-gradie
 @media (max-width: 820px) {
   .expert-store-recommendations p { font-size: 15px; }
 }
+
+/* Keep personalized store guidance inside the recommendation conclusion panel. */
+.recommendation-reason .expert-store-recommendations {
+  margin: 28px 0 0;
+  width: 100%;
+  max-width: 100%;
+}
+.recommendation-reason .expert-store-recommendations h2 {
+  display: inline-block;
+  margin: 0 0 12px;
+}
+body .recommendation-reason .expert-store-recommendations p {
+  width: 100%;
+  max-width: 100%;
+  margin: 0 10px;
+  padding: 0;
+  color: #c3cad6;
+  font-size: 19px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+@media (max-width: 820px) {
+  body .recommendation-reason .expert-store-recommendations p {
+    margin: 0;
+    font-size: 15px;
+  }
+}
