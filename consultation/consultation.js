@@ -652,7 +652,7 @@
     storeAdvice.hidden = !storeAdviceText;
 
     const reason = $("#recommendation-reason");
-    reason.hidden = !conclusion;
+    reason.hidden = !conclusion && !storeAdviceText;
     $("#reason-label").textContent = role === "anti"
       ? "Почему я не рекомендую эту модель"
       : role === "recommendation" && Number(item.rank) === 1
