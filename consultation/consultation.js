@@ -408,7 +408,13 @@
   }
 
   function selectorLabel(view) {
-    const prefix = view.role === "anti" ? "×" : view.role === "alternative" || view.role === "upgrade" ? "+" : `№${text(view.item.rank) || "—"}`;
+    const prefix = view.role === "anti"
+      ? "× Не рекомендую"
+      : view.role === "alternative"
+        ? "+ Альтернатива"
+        : view.role === "upgrade"
+          ? "+ Вариант с доплатой"
+          : `№${text(view.item.rank) || "—"}`;
     return `${prefix} — ${modelName(view)}`;
   }
 
