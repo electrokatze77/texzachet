@@ -82,7 +82,10 @@ async function handleLaptopImage(request, env, imageKey) {
   if (!sourceResponse) return emptyResponse(404);
   const headers = new Headers();
   sourceResponse.writeHttpMetadata(headers);
-  headers.set("Cache-Control", "public, max-age=31536000, immutable");
+  // R2 keys are replaced in place when a better image is synchronized.
+  // Revalidate stable URLs and keep stale copies out of Cloudflare's edge cache.
+  headers.set("Cache-Control", "public, max-age=0, must-revalidate");
+  headers.set("Cloudflare-CDN-Cache-Control", "no-store");
   headers.set("ETag", sourceResponse.httpEtag);
   return new Response(request.method === "HEAD" ? null : sourceResponse.body, { headers });
 }
